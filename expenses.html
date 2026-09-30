@@ -1,1 +1,593 @@
+<!DOCTYPE html>
+<html lang="bn">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Expense Management</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f5f7fb;
+    color: #1f2937;
+}
+
+.header {
+    background: #111827;
+    color: white;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 25px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+textarea {
+    resize: vertical;
+}
+
+button {
+    border: none;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-top: 15px;
+}
+
+.add-btn {
+    background: #111827;
+    color: white;
+}
+
+.delete-btn {
+    background: #dc2626;
+    color: white;
+    padding: 7px 12px;
+    margin: 0;
+}
+
+.dashboard-btn {
+    background: white;
+    color: #111827;
+}
+
+.summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.summary-box {
+    background: #f3f4f6;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.summary-box h3 {
+    margin: 0 0 8px 0;
+    color: #6b7280;
+}
+
+.summary-box h2 {
+    margin: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th,
+td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+th {
+    background: #f3f4f6;
+}
+
+@media(max-width: 700px) {
+
+    .form-grid,
+    .summary {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header class="header">
+
+<h1>💸 Expense Management</h1>
+
+<button
+class="dashboard-btn"
+onclick="window.location.href='index.html'">
+
+← Dashboard
+
+</button>
+
+</header>
+
+
+<main class="container">
+
+
+<div class="summary">
+
+<div class="summary-box">
+
+<h3>আজকের খরচ</h3>
+
+<h2>
+৳ <span id="todayExpense">0</span>
+</h2>
+
+</div>
+
+
+<div class="summary-box">
+
+<h3>মোট খরচ</h3>
+
+<h2>
+৳ <span id="totalExpense">0</span>
+</h2>
+
+</div>
+
+
+<div class="summary-box">
+
+<h3>মোট Expense</h3>
+
+<h2>
+<span id="expenseCount">0</span>
+</h2>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>➕ নতুন Expense যোগ করুন</h2>
+
+
+<div class="form-grid">
+
+
+<div>
+
+<label>Expense Category</label>
+
+<select id="category">
+
+<option value="">
+-- Category নির্বাচন করুন --
+</option>
+
+<option value="Office Rent">
+Office Rent
+</option>
+
+<option value="Salary">
+Salary
+</option>
+
+<option value="Electricity">
+Electricity
+</option>
+
+<option value="Internet">
+Internet
+</option>
+
+<option value="Transport">
+Transport
+</option>
+
+<option value="Marketing">
+Marketing
+</option>
+
+<option value="Equipment">
+Equipment
+</option>
+
+<option value="Food">
+Food
+</option>
+
+<option value="Other">
+Other
+</option>
+
+</select>
+
+</div>
+
+
+<div>
+
+<label>Amount</label>
+
+<input
+type="number"
+id="amount"
+placeholder="খরচের পরিমাণ">
+
+</div>
+
+
+<div>
+
+<label>Date</label>
+
+<input
+type="date"
+id="date">
+
+</div>
+
+
+<div>
+
+<label>Description</label>
+
+<textarea
+id="description"
+rows="3"
+placeholder="খরচের বিস্তারিত"></textarea>
+
+</div>
+
+
+</div>
+
+
+<button
+class="add-btn"
+onclick="addExpense()">
+
+💾 Expense Save করুন
+
+</button>
+
+
+</div>
+
+
+<div class="card">
+
+<h2>📋 Expense History</h2>
+
+<div id="expenseList"></div>
+
+</div>
+
+
+</main>
+
+
+<script>
+
+
+function getExpenses() {
+
+    return JSON.parse(
+        localStorage.getItem("expenses") || "[]"
+    );
+
+}
+
+
+function saveExpenses(expenses) {
+
+    localStorage.setItem(
+        "expenses",
+        JSON.stringify(expenses)
+    );
+
+}
+
+
+function setToday() {
+
+    const today =
+        new Date().toISOString().split("T")[0];
+
+    document.getElementById("date").value =
+        today;
+
+}
+
+
+function addExpense() {
+
+    const category =
+        document.getElementById("category").value;
+
+    const amount =
+        Number(
+            document.getElementById("amount").value
+        );
+
+    const date =
+        document.getElementById("date").value;
+
+    const description =
+        document.getElementById("description").value.trim();
+
+
+    if (!category) {
+
+        alert("Expense Category নির্বাচন করুন");
+
+        return;
+
+    }
+
+
+    if (!amount || amount <= 0) {
+
+        alert("সঠিক Amount দিন");
+
+        return;
+
+    }
+
+
+    if (!date) {
+
+        alert("Date নির্বাচন করুন");
+
+        return;
+
+    }
+
+
+    const expense = {
+
+        id: Date.now(),
+
+        category: category,
+
+        amount: amount,
+
+        date: date,
+
+        description: description
+
+    };
+
+
+    const expenses = getExpenses();
+
+    expenses.push(expense);
+
+    saveExpenses(expenses);
+
+
+    alert("✅ Expense সফলভাবে Save হয়েছে।");
+
+
+    document.getElementById("category").value = "";
+
+    document.getElementById("amount").value = "";
+
+    document.getElementById("description").value = "";
+
+
+    showExpenses();
+
+}
+
+
+function deleteExpense(id) {
+
+    if (!confirm("এই Expense delete করতে চান?")) {
+
+        return;
+
+    }
+
+
+    let expenses = getExpenses();
+
+
+    expenses =
+        expenses.filter(
+            expense => expense.id !== id
+        );
+
+
+    saveExpenses(expenses);
+
+    showExpenses();
+
+}
+
+
+function showExpenses() {
+
+    const expenses = getExpenses();
+
+    const list =
+        document.getElementById("expenseList");
+
+
+    let total = 0;
+
+    let todayTotal = 0;
+
+
+    const today =
+        new Date().toISOString().split("T")[0];
+
+
+    expenses.forEach(expense => {
+
+        total += Number(expense.amount);
+
+
+        if (expense.date === today) {
+
+            todayTotal += Number(expense.amount);
+
+        }
+
+    });
+
+
+    document.getElementById("totalExpense").innerText =
+        total;
+
+
+    document.getElementById("todayExpense").innerText =
+        todayTotal;
+
+
+    document.getElementById("expenseCount").innerText =
+        expenses.length;
+
+
+    if (expenses.length === 0) {
+
+        list.innerHTML =
+            "<p>এখনও কোনো Expense যোগ করা হয়নি।</p>";
+
+        return;
+
+    }
+
+
+    let html = `
+
+    <table>
+
+    <tr>
+
+    <th>Date</th>
+
+    <th>Category</th>
+
+    <th>Description</th>
+
+    <th>Amount</th>
+
+    <th>Action</th>
+
+    </tr>
+
+    `;
+
+
+    expenses.forEach(expense => {
+
+        html += `
+
+        <tr>
+
+        <td>${expense.date}</td>
+
+        <td>${expense.category}</td>
+
+        <td>${expense.description || "-"}</td>
+
+        <td>৳ ${expense.amount}</td>
+
+        <td>
+
+        <button
+        class="delete-btn"
+        onclick="deleteExpense(${expense.id})">
+
+        Delete
+
+        </button>
+
+        </td>
+
+        </tr>
+
+        `;
+
+    });
+
+
+    html += "</table>";
+
+
+    list.innerHTML = html;
+
+}
+
+
+setToday();
+
+showExpenses();
+
+
+</script>
+
+
+</body>
+
+</html>
