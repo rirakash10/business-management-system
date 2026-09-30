@@ -176,6 +176,18 @@ placeholder="Customer-এর নাম">
 
 <div>
 
+<label>Customer Phone</label>
+
+<input
+type="tel"
+id="customerPhone"
+placeholder="01XXXXXXXXX">
+
+</div>
+
+
+<div>
+
 <label>Product</label>
 
 <select
@@ -235,6 +247,41 @@ type="number"
 id="paid"
 value="0"
 oninput="calculateDue()">
+
+</div>
+
+
+<div>
+
+<label>Payment Method</label>
+
+<select id="paymentMethod">
+
+<option value="Cash">
+💵 Cash
+</option>
+
+<option value="bKash">
+📱 bKash
+</option>
+
+<option value="Nagad">
+📱 Nagad
+</option>
+
+<option value="Card">
+💳 Card
+</option>
+
+<option value="Bank">
+🏦 Bank
+</option>
+
+<option value="Other">
+🔹 Other
+</option>
+
+</select>
 
 </div>
 
@@ -449,6 +496,10 @@ function addSale() {
         document.getElementById("customer").value.trim();
 
 
+    const customerPhone =
+        document.getElementById("customerPhone").value.trim();
+
+
     const productId =
         Number(
             document.getElementById("product").value
@@ -465,6 +516,10 @@ function addSale() {
         Number(
             document.getElementById("paid").value
         ) || 0;
+
+
+    const paymentMethod =
+        document.getElementById("paymentMethod").value;
 
 
     if (!customer) {
@@ -552,6 +607,8 @@ function addSale() {
 
         customer: customer,
 
+        customerPhone: customerPhone,
+
         productId: product.id,
 
         product: product.name,
@@ -565,6 +622,8 @@ function addSale() {
         paid: paid,
 
         due: due,
+
+        paymentMethod: paymentMethod,
 
         date: new Date().toLocaleString("bn-BD")
 
@@ -587,6 +646,8 @@ function addSale() {
 
     document.getElementById("customer").value = "";
 
+    document.getElementById("customerPhone").value = "";
+
     document.getElementById("product").value = "";
 
     document.getElementById("quantity").value = "1";
@@ -594,6 +655,8 @@ function addSale() {
     document.getElementById("price").value = "";
 
     document.getElementById("paid").value = "0";
+
+    document.getElementById("paymentMethod").value = "Cash";
 
     document.getElementById("stockInfo").innerText =
         "Stock: -";
@@ -700,6 +763,8 @@ function showSales() {
 
     <th>Customer</th>
 
+    <th>Phone</th>
+
     <th>Product</th>
 
     <th>Qty</th>
@@ -709,6 +774,8 @@ function showSales() {
     <th>Paid</th>
 
     <th>Due</th>
+
+    <th>Payment</th>
 
     <th>Action</th>
 
@@ -727,6 +794,8 @@ function showSales() {
 
         <td>${sale.customer}</td>
 
+        <td>${sale.customerPhone || "-"}</td>
+
         <td>${sale.product}</td>
 
         <td>${sale.quantity}</td>
@@ -736,6 +805,8 @@ function showSales() {
         <td>৳ ${sale.paid}</td>
 
         <td>৳ ${sale.due}</td>
+
+        <td>${sale.paymentMethod || "-"}</td>
 
         <td>
 
