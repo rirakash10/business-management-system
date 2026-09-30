@@ -10,6 +10,7 @@ content="width=device-width, initial-scale=1.0">
 
 <title>Business Management System</title>
 
+
 <style>
 
 * {
@@ -74,6 +75,10 @@ body {
     font-size: 26px;
 }
 
+.menu-title {
+    margin-bottom: 20px;
+}
+
 .menu {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -126,9 +131,13 @@ body {
 
 <header class="header">
 
-<h1>Business Management System</h1>
+<h1>
+Business Management System
+</h1>
 
-<p>ছোট ব্যবসার সম্পূর্ণ ব্যবস্থাপনা</p>
+<p>
+ছোট ব্যবসার সম্পূর্ণ ব্যবস্থাপনা
+</p>
 
 </header>
 
@@ -141,44 +150,68 @@ body {
 
 <div class="card">
 
-<div class="icon">💰</div>
+<div class="icon">
+💰
+</div>
 
-<h3>মোট বিক্রয়</h3>
+<h3>
+মোট বিক্রয়
+</h3>
 
-<h2>৳ 0</h2>
+<h2>
+৳ <span id="totalSales">0</span>
+</h2>
 
 </div>
 
 
 <div class="card">
 
-<div class="icon">💸</div>
+<div class="icon">
+💸
+</div>
 
-<h3>মোট খরচ</h3>
+<h3>
+মোট খরচ
+</h3>
 
-<h2>৳ 0</h2>
+<h2>
+৳ <span id="totalExpenses">0</span>
+</h2>
 
 </div>
 
 
 <div class="card">
 
-<div class="icon">📈</div>
+<div class="icon">
+📈
+</div>
 
-<h3>মোট লাভ</h3>
+<h3>
+মোট লাভ
+</h3>
 
-<h2>৳ 0</h2>
+<h2>
+৳ <span id="totalProfit">0</span>
+</h2>
 
 </div>
 
 
 <div class="card">
 
-<div class="icon">🧾</div>
+<div class="icon">
+🧾
+</div>
 
-<h3>মোট Invoice</h3>
+<h3>
+মোট Invoice
+</h3>
 
-<h2>0</h2>
+<h2>
+<span id="totalInvoices">0</span>
+</h2>
 
 </div>
 
@@ -186,7 +219,7 @@ body {
 </section>
 
 
-<h2 style="margin-bottom:20px;">
+<h2 class="menu-title">
 Business Modules
 </h2>
 
@@ -197,7 +230,8 @@ Business Modules
 <button
 onclick="window.location.href='customers.html'">
 
-👥<br><br>
+👥
+<br><br>
 
 Customers
 
@@ -207,31 +241,41 @@ Customers
 <button
 onclick="window.location.href='products.html'">
 
-📦<br><br>
+📦
+<br><br>
 
 Products & Stock
 
 </button>
 
 
-<button onclick="window.location.href='sales.html'">
-    🛒<br><br>
-    Sales
+<button
+onclick="window.location.href='sales.html'">
+
+🛒
+<br><br>
+
+Sales
+
 </button>
 
 
-<button onclick="window.location.href='invoices.html'">
+<button
+onclick="window.location.href='invoices.html'">
 
-🧾<br><br>
+🧾
+<br><br>
 
 Invoices
 
 </button>
 
 
-<button onclick="window.location.href='expenses.html'">
+<button
+onclick="window.location.href='expenses.html'">
 
-💸<br><br>
+💸
+<br><br>
 
 Expenses
 
@@ -240,7 +284,8 @@ Expenses
 
 <button>
 
-👨‍💼<br><br>
+👨‍💼
+<br><br>
 
 Employees
 
@@ -249,7 +294,8 @@ Employees
 
 <button>
 
-📊<br><br>
+📊
+<br><br>
 
 Reports
 
@@ -258,7 +304,8 @@ Reports
 
 <button>
 
-⚙️<br><br>
+⚙️
+<br><br>
 
 Settings
 
@@ -269,6 +316,110 @@ Settings
 
 
 </main>
+
+
+<script>
+
+
+/* =========================
+   SALES DATA
+========================= */
+
+function getSales() {
+
+    return JSON.parse(
+        localStorage.getItem("sales") || "[]"
+    );
+
+}
+
+
+/* =========================
+   EXPENSE DATA
+========================= */
+
+function getExpenses() {
+
+    return JSON.parse(
+        localStorage.getItem("expenses") || "[]"
+    );
+
+}
+
+
+/* =========================
+   DASHBOARD CALCULATION
+========================= */
+
+function updateDashboard() {
+
+
+    const sales = getSales();
+
+    const expenses = getExpenses();
+
+
+    let totalSales = 0;
+
+    let totalExpenses = 0;
+
+
+    /* Sales Total */
+
+    sales.forEach(sale => {
+
+        totalSales +=
+            Number(sale.total) || 0;
+
+    });
+
+
+    /* Expense Total */
+
+    expenses.forEach(expense => {
+
+        totalExpenses +=
+            Number(expense.amount) || 0;
+
+    });
+
+
+    /* Profit */
+
+    const profit =
+        totalSales - totalExpenses;
+
+
+    /* Display */
+
+    document.getElementById(
+        "totalSales"
+    ).innerText = totalSales;
+
+
+    document.getElementById(
+        "totalExpenses"
+    ).innerText = totalExpenses;
+
+
+    document.getElementById(
+        "totalProfit"
+    ).innerText = profit;
+
+
+    document.getElementById(
+        "totalInvoices"
+    ).innerText = sales.length;
+
+}
+
+
+/* Run */
+
+updateDashboard();
+
+
+</script>
 
 
 </body>
