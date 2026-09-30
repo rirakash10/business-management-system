@@ -90,6 +90,12 @@ button {
     color: #111827;
 }
 
+.customer-btn {
+    background: #2563eb;
+    color: white;
+    margin-top: 8px;
+}
+
 .total-box {
     margin-top: 20px;
     padding: 15px;
@@ -99,6 +105,11 @@ button {
 }
 
 .stock-info {
+    margin-top: 8px;
+    color: #6b7280;
+}
+
+.phone-info {
     margin-top: 8px;
     color: #6b7280;
 }
@@ -162,29 +173,43 @@ onclick="window.location.href='index.html'">
 <div class="form-grid">
 
 
+<!-- CUSTOMER -->
+
 <div>
 
-<label>Customer Name</label>
+<label>Customer</label>
 
-<input
-type="text"
+<select
 id="customer"
-placeholder="Customer-এর নাম">
+onchange="customerSelected()">
+
+<option value="">
+-- Customer নির্বাচন করুন --
+</option>
+
+</select>
+
+<div
+id="customerPhoneInfo"
+class="phone-info">
+
+Phone: -
+
+</div>
+
+<button
+type="button"
+class="customer-btn"
+onclick="window.location.href='customers.html'">
+
+👥 নতুন Customer যোগ করুন
+
+</button>
 
 </div>
 
 
-<div>
-
-<label>Customer Phone</label>
-
-<input
-type="tel"
-id="customerPhone"
-placeholder="01XXXXXXXXX">
-
-</div>
-
+<!-- PRODUCT -->
 
 <div>
 
@@ -196,7 +221,6 @@ onchange="productSelected()">
 
 <option value="">
 -- Product নির্বাচন করুন --
-
 </option>
 
 </select>
@@ -212,6 +236,8 @@ Stock: -
 </div>
 
 
+<!-- QUANTITY -->
+
 <div>
 
 <label>Quantity</label>
@@ -226,6 +252,8 @@ oninput="calculateTotal()">
 </div>
 
 
+<!-- SALE PRICE -->
+
 <div>
 
 <label>Sale Price</label>
@@ -238,6 +266,8 @@ readonly>
 </div>
 
 
+<!-- PAID -->
+
 <div>
 
 <label>Paid Amount</label>
@@ -246,10 +276,13 @@ readonly>
 type="number"
 id="paid"
 value="0"
+min="0"
 oninput="calculateDue()">
 
 </div>
 
+
+<!-- PAYMENT -->
 
 <div>
 
@@ -331,6 +364,107 @@ onclick="addSale()">
 <script>
 
 
+/* =========================
+   CUSTOMERS
+========================= */
+
+function getCustomers() {
+
+    return JSON.parse(
+        localStorage.getItem("customers") || "[]"
+    );
+
+}
+
+
+function loadCustomers() {
+
+    const customers = getCustomers();
+
+    const select =
+        document.getElementById("customer");
+
+
+    select.innerHTML = `
+
+    <option value="">
+    -- Customer নির্বাচন করুন --
+    </option>
+
+    `;
+
+
+    customers.forEach(customer => {
+
+        const option =
+            document.createElement("option");
+
+
+        option.value = customer.id;
+
+
+        option.textContent =
+            customer.name +
+            (
+                customer.phone
+                ? " — " + customer.phone
+                : ""
+            );
+
+
+        select.appendChild(option);
+
+    });
+
+}
+
+
+/* =========================
+   CUSTOMER SELECTED
+========================= */
+
+function customerSelected() {
+
+    const id =
+        Number(
+            document.getElementById("customer").value
+        );
+
+
+    const customers =
+        getCustomers();
+
+
+    const customer =
+        customers.find(
+            item => item.id === id
+        );
+
+
+    if (!customer) {
+
+        document.getElementById(
+            "customerPhoneInfo"
+        ).innerText = "Phone: -";
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "customerPhoneInfo"
+    ).innerText =
+        "📞 Phone: " +
+        (customer.phone || "-");
+
+}
+
+
+/* =========================
+   PRODUCTS
+========================= */
+
 function getProducts() {
 
     return JSON.parse(
@@ -350,25 +484,6 @@ function saveProducts(products) {
 }
 
 
-function getSales() {
-
-    return JSON.parse(
-        localStorage.getItem("sales") || "[]"
-    );
-
-}
-
-
-function saveSales(sales) {
-
-    localStorage.setItem(
-        "sales",
-        JSON.stringify(sales)
-    );
-
-}
-
-
 function loadProducts() {
 
     const products = getProducts();
@@ -382,12 +497,15 @@ function loadProducts() {
         const option =
             document.createElement("option");
 
+
         option.value = product.id;
+
 
         option.textContent =
             product.name +
             " — Stock: " +
             product.quantity;
+
 
         select.appendChild(option);
 
@@ -395,6 +513,10 @@ function loadProducts() {
 
 }
 
+
+/* =========================
+   PRODUCT SELECTED
+========================= */
 
 function productSelected() {
 
@@ -430,13 +552,18 @@ function productSelected() {
 
 
     document.getElementById("stockInfo").innerText =
-        "বর্তমান Stock: " + product.quantity;
+        "বর্তমান Stock: " +
+        product.quantity;
 
 
     calculateTotal();
 
 }
 
+
+/* =========================
+   CALCULATE TOTAL
+========================= */
 
 function calculateTotal() {
 
@@ -465,6 +592,10 @@ function calculateTotal() {
 }
 
 
+/* =========================
+   CALCULATE DUE
+========================= */
+
 function calculateDue() {
 
     const total =
@@ -489,15 +620,17 @@ function calculateDue() {
 }
 
 
+/* =========================
+   ADD SALE
+========================= */
+
 function addSale() {
 
 
-    const customer =
-        document.getElementById("customer").value.trim();
-
-
-    const customerPhone =
-        document.getElementById("customerPhone").value.trim();
+    const customerId =
+        Number(
+            document.getElementById("customer").value
+        );
 
 
     const productId =
@@ -519,17 +652,33 @@ function addSale() {
 
 
     const paymentMethod =
-        document.getElementById("paymentMethod").value;
+        document.getElementById(
+            "paymentMethod"
+        ).value;
 
 
-    if (!customer) {
+    /* Customer */
 
-        alert("Customer Name দিন");
+    const customers =
+        getCustomers();
+
+
+    const selectedCustomer =
+        customers.find(
+            item => item.id === customerId
+        );
+
+
+    if (!selectedCustomer) {
+
+        alert("Customer নির্বাচন করুন");
 
         return;
 
     }
 
+
+    /* Product */
 
     if (!productId) {
 
@@ -567,6 +716,8 @@ function addSale() {
     }
 
 
+    /* Stock Check */
+
     if (quantity > product.quantity) {
 
         alert(
@@ -579,12 +730,27 @@ function addSale() {
     }
 
 
+    /* Price */
+
     const price =
         Number(product.sellPrice);
 
 
     const total =
         quantity * price;
+
+
+    /* Paid Check */
+
+    if (paid > total) {
+
+        alert(
+            "Paid Amount Total-এর চেয়ে বেশি হতে পারবে না।"
+        );
+
+        return;
+
+    }
 
 
     const due =
@@ -605,27 +771,41 @@ function addSale() {
 
         id: Date.now(),
 
-        customer: customer,
+        customerId:
+            selectedCustomer.id,
 
-        customerPhone: customerPhone,
+        customer:
+            selectedCustomer.name,
 
-        productId: product.id,
+        customerPhone:
+            selectedCustomer.phone || "",
 
-        product: product.name,
+        productId:
+            product.id,
 
-        quantity: quantity,
+        product:
+            product.name,
 
-        price: price,
+        quantity:
+            quantity,
 
-        total: total,
+        price:
+            price,
 
-        paid: paid,
+        total:
+            total,
 
-        due: due,
+        paid:
+            paid,
 
-        paymentMethod: paymentMethod,
+        due:
+            due,
 
-        date: new Date().toLocaleString("bn-BD")
+        paymentMethod:
+            paymentMethod,
+
+        date:
+            new Date().toLocaleString("bn-BD")
 
     };
 
@@ -644,36 +824,105 @@ function addSale() {
     );
 
 
-    document.getElementById("customer").value = "";
-
-    document.getElementById("customerPhone").value = "";
-
-    document.getElementById("product").value = "";
-
-    document.getElementById("quantity").value = "1";
-
-    document.getElementById("price").value = "";
-
-    document.getElementById("paid").value = "0";
-
-    document.getElementById("paymentMethod").value = "Cash";
-
-    document.getElementById("stockInfo").innerText =
-        "Stock: -";
-
-    document.getElementById("total").innerText =
-        "0";
-
-    document.getElementById("due").innerText =
-        "0";
+    resetForm();
 
 
     showSales();
 
     refreshProductDropdown();
 
+    loadCustomers();
+
 }
 
+
+/* =========================
+   RESET FORM
+========================= */
+
+function resetForm() {
+
+    document.getElementById(
+        "customer"
+    ).value = "";
+
+    document.getElementById(
+        "customerPhoneInfo"
+    ).innerText =
+        "Phone: -";
+
+
+    document.getElementById(
+        "product"
+    ).value = "";
+
+
+    document.getElementById(
+        "quantity"
+    ).value = "1";
+
+
+    document.getElementById(
+        "price"
+    ).value = "";
+
+
+    document.getElementById(
+        "paid"
+    ).value = "0";
+
+
+    document.getElementById(
+        "paymentMethod"
+    ).value = "Cash";
+
+
+    document.getElementById(
+        "stockInfo"
+    ).innerText =
+        "Stock: -";
+
+
+    document.getElementById(
+        "total"
+    ).innerText =
+        "0";
+
+
+    document.getElementById(
+        "due"
+    ).innerText =
+        "0";
+
+}
+
+
+/* =========================
+   SALES
+========================= */
+
+function getSales() {
+
+    return JSON.parse(
+        localStorage.getItem("sales") || "[]"
+    );
+
+}
+
+
+function saveSales(sales) {
+
+    localStorage.setItem(
+        "sales",
+        JSON.stringify(sales)
+    );
+
+}
+
+
+/* =========================
+   DELETE SALE
+========================= */
 
 function deleteSale(id) {
 
@@ -698,7 +947,8 @@ function deleteSale(id) {
 
     if (sale) {
 
-        const products = getProducts();
+        const products =
+            getProducts();
 
 
         const product =
@@ -709,7 +959,9 @@ function deleteSale(id) {
 
         if (product) {
 
-            product.quantity += sale.quantity;
+            product.quantity +=
+                Number(sale.quantity) || 0;
+
 
             saveProducts(products);
 
@@ -733,6 +985,10 @@ function deleteSale(id) {
 
 }
 
+
+/* =========================
+   SHOW SALES
+========================= */
 
 function showSales() {
 
@@ -790,23 +1046,41 @@ function showSales() {
 
         <tr>
 
-        <td>${sale.date}</td>
+        <td>
+        ${sale.date}
+        </td>
 
-        <td>${sale.customer}</td>
+        <td>
+        ${sale.customer}
+        </td>
 
-        <td>${sale.customerPhone || "-"}</td>
+        <td>
+        ${sale.customerPhone || "-"}
+        </td>
 
-        <td>${sale.product}</td>
+        <td>
+        ${sale.product}
+        </td>
 
-        <td>${sale.quantity}</td>
+        <td>
+        ${sale.quantity}
+        </td>
 
-        <td>৳ ${sale.total}</td>
+        <td>
+        ৳ ${sale.total}
+        </td>
 
-        <td>৳ ${sale.paid}</td>
+        <td>
+        ৳ ${sale.paid}
+        </td>
 
-        <td>৳ ${sale.due}</td>
+        <td>
+        ৳ ${sale.due}
+        </td>
 
-        <td>${sale.paymentMethod || "-"}</td>
+        <td>
+        ${sale.paymentMethod || "-"}
+        </td>
 
         <td>
 
@@ -835,6 +1109,10 @@ function showSales() {
 }
 
 
+/* =========================
+   REFRESH PRODUCT DROPDOWN
+========================= */
+
 function refreshProductDropdown() {
 
     const select =
@@ -844,9 +1122,7 @@ function refreshProductDropdown() {
     select.innerHTML = `
 
     <option value="">
-
     -- Product নির্বাচন করুন --
-
     </option>
 
     `;
@@ -856,6 +1132,12 @@ function refreshProductDropdown() {
 
 }
 
+
+/* =========================
+   START
+========================= */
+
+loadCustomers();
 
 loadProducts();
 
