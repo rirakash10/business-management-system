@@ -1,1 +1,398 @@
+<!DOCTYPE html>
+<html lang="bn">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Business Settings</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f5f7fb;
+    color: #1f2937;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 30px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.top-buttons {
+    margin-bottom: 20px;
+}
+
+button {
+    border: none;
+    padding: 11px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    background: #2563eb;
+}
+
+.back-btn {
+    background: #374151;
+}
+
+.save-btn {
+    margin-top: 20px;
+    background: #16a34a;
+}
+
+.form-box {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.full {
+    grid-column: 1 / -1;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+}
+
+textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.preview {
+    margin-top: 25px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.preview h2 {
+    margin-bottom: 10px;
+}
+
+@media(max-width: 700px) {
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .full {
+        grid-column: auto;
+    }
+
+    .container {
+        padding: 15px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>⚙️ Business Settings</h1>
+
+    <div class="top-buttons">
+
+        <button
+        class="back-btn"
+        onclick="window.location.href='index.html'">
+
+            🏠 Dashboard
+
+        </button>
+
+    </div>
+
+
+    <div class="form-box">
+
+        <h2>🏢 Business Information</h2>
+
+        <br>
+
+        <div class="form-grid">
+
+
+            <div>
+
+                <label>
+                    Business Name
+                </label>
+
+                <input
+                type="text"
+                id="businessName"
+                placeholder="যেমন: RIR Creative">
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Phone
+                </label>
+
+                <input
+                type="text"
+                id="businessPhone"
+                placeholder="01XXXXXXXXX">
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Email
+                </label>
+
+                <input
+                type="email"
+                id="businessEmail"
+                placeholder="example@email.com">
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Website
+                </label>
+
+                <input
+                type="text"
+                id="businessWebsite"
+                placeholder="www.example.com">
+
+            </div>
+
+
+            <div class="full">
+
+                <label>
+                    Business Address
+                </label>
+
+                <textarea
+                id="businessAddress"
+                placeholder="Business address লিখুন"></textarea>
+
+            </div>
+
+
+            <div class="full">
+
+                <label>
+                    Business Description
+                </label>
+
+                <textarea
+                id="businessDescription"
+                placeholder="Business সম্পর্কে সংক্ষিপ্ত তথ্য"></textarea>
+
+            </div>
+
+        </div>
+
+
+        <button
+        class="save-btn"
+        onclick="saveSettings()">
+
+            💾 Save Settings
+
+        </button>
+
+
+        <div class="preview">
+
+            <h2 id="previewName">
+                Business Name
+            </h2>
+
+            <p id="previewPhone">
+                Phone: -
+            </p>
+
+            <p id="previewEmail">
+                Email: -
+            </p>
+
+            <p id="previewWebsite">
+                Website: -
+            </p>
+
+            <p id="previewAddress">
+                Address: -
+            </p>
+
+            <br>
+
+            <p id="previewDescription">
+                Business Description
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+
+// Load saved settings
+
+const savedSettings =
+    JSON.parse(
+        localStorage.getItem("businessSettings") || "{}"
+    );
+
+
+document.getElementById("businessName").value =
+    savedSettings.name || "";
+
+document.getElementById("businessPhone").value =
+    savedSettings.phone || "";
+
+document.getElementById("businessEmail").value =
+    savedSettings.email || "";
+
+document.getElementById("businessWebsite").value =
+    savedSettings.website || "";
+
+document.getElementById("businessAddress").value =
+    savedSettings.address || "";
+
+document.getElementById("businessDescription").value =
+    savedSettings.description || "";
+
+
+// Save Settings
+
+function saveSettings() {
+
+    const settings = {
+
+        name:
+            document.getElementById("businessName").value.trim(),
+
+        phone:
+            document.getElementById("businessPhone").value.trim(),
+
+        email:
+            document.getElementById("businessEmail").value.trim(),
+
+        website:
+            document.getElementById("businessWebsite").value.trim(),
+
+        address:
+            document.getElementById("businessAddress").value.trim(),
+
+        description:
+            document.getElementById("businessDescription").value.trim()
+
+    };
+
+
+    localStorage.setItem(
+        "businessSettings",
+        JSON.stringify(settings)
+    );
+
+
+    updatePreview();
+
+
+    alert("Business Settings সফলভাবে Save হয়েছে ✅");
+
+}
+
+
+// Update Preview
+
+function updatePreview() {
+
+    const settings =
+        JSON.parse(
+            localStorage.getItem("businessSettings") || "{}"
+        );
+
+
+    document.getElementById("previewName").innerText =
+        settings.name || "Business Name";
+
+
+    document.getElementById("previewPhone").innerText =
+        "Phone: " + (settings.phone || "-");
+
+
+    document.getElementById("previewEmail").innerText =
+        "Email: " + (settings.email || "-");
+
+
+    document.getElementById("previewWebsite").innerText =
+        "Website: " + (settings.website || "-");
+
+
+    document.getElementById("previewAddress").innerText =
+        "Address: " + (settings.address || "-");
+
+
+    document.getElementById("previewDescription").innerText =
+        settings.description ||
+        "Business Description";
+
+}
+
+
+// Initial preview
+
+updatePreview();
+
+</script>
+
+</body>
+
+</html>
