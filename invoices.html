@@ -1,1 +1,480 @@
+<!DOCTYPE html>
+<html lang="bn">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Invoice Management</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f5f7fb;
+    color: #1f2937;
+}
+
+.header {
+    background: #111827;
+    color: white;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 25px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+button {
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.dashboard-btn {
+    background: white;
+    color: #111827;
+    margin-top: 12px;
+}
+
+.print-btn {
+    background: #111827;
+    color: white;
+}
+
+.delete-btn {
+    background: #dc2626;
+    color: white;
+}
+
+.invoice {
+    border: 1px solid #ddd;
+    padding: 25px;
+    margin-top: 20px;
+    border-radius: 10px;
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+
+.invoice-title {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.invoice-info {
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th,
+td {
+    border-bottom: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+th {
+    background: #f3f4f6;
+}
+
+.total-section {
+    margin-top: 20px;
+    text-align: right;
+    line-height: 1.8;
+}
+
+.invoice-list {
+    margin-top: 20px;
+}
+
+.invoice-item {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+@media print {
+
+    body {
+        background: white;
+    }
+
+    .header,
+    .invoice-list,
+    .card > h2,
+    .no-print {
+        display: none !important;
+    }
+
+    .container {
+        padding: 0;
+    }
+
+    .card {
+        box-shadow: none;
+        border: none;
+    }
+
+    .invoice {
+        border: none;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header class="header">
+
+<h1>🧾 Invoice Management</h1>
+
+<button
+class="dashboard-btn"
+onclick="window.location.href='index.html'">
+
+← Dashboard
+
+</button>
+
+</header>
+
+
+<main class="container">
+
+
+<div class="card no-print">
+
+<h2>📋 Sales থেকে Invoice</h2>
+
+<div id="salesList">
+
+<p>Sales load হচ্ছে...</p>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2 class="no-print">🧾 Invoice Preview</h2>
+
+<div id="invoiceArea">
+
+<p>উপরের তালিকা থেকে একটি Sale নির্বাচন করুন।</p>
+
+</div>
+
+</div>
+
+
+</main>
+
+
+<script>
+
+
+function getSales() {
+
+    return JSON.parse(
+        localStorage.getItem("sales") || "[]"
+    );
+
+}
+
+
+function showSales() {
+
+    const sales = getSales();
+
+    const list =
+        document.getElementById("salesList");
+
+
+    if (sales.length === 0) {
+
+        list.innerHTML =
+            "<p>এখনও কোনো Sale পাওয়া যায়নি। আগে একটি Sale তৈরি করুন।</p>";
+
+        return;
+
+    }
+
+
+    let html = "";
+
+
+    sales.forEach(sale => {
+
+        html += `
+
+        <div class="invoice-item">
+
+            <strong>
+            ${sale.product}
+            </strong>
+
+            <br>
+
+            Customer:
+            ${sale.customer}
+
+            <br>
+
+            Total:
+            ৳ ${sale.total}
+
+            <br>
+
+            Due:
+            ৳ ${sale.due}
+
+            <br><br>
+
+            <button
+            class="print-btn"
+            onclick="createInvoice(${sale.id})">
+
+            🧾 Invoice তৈরি করুন
+
+            </button>
+
+        </div>
+
+        `;
+
+    });
+
+
+    list.innerHTML = html;
+
+}
+
+
+function createInvoice(id) {
+
+    const sales = getSales();
+
+
+    const sale =
+        sales.find(
+            item => item.id === id
+        );
+
+
+    if (!sale) {
+
+        alert("Sale পাওয়া যায়নি।");
+
+        return;
+
+    }
+
+
+    const invoiceNumber =
+        "INV-" +
+        new Date().getFullYear() +
+        "-" +
+        String(sale.id).slice(-6);
+
+
+    const invoiceArea =
+        document.getElementById("invoiceArea");
+
+
+    invoiceArea.innerHTML = `
+
+    <div class="invoice">
+
+        <div class="invoice-header">
+
+            <div>
+
+                <div class="invoice-title">
+                INVOICE
+                </div>
+
+                <div>
+                Business Management System
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+                Invoice:
+                </strong>
+
+                ${invoiceNumber}
+
+                <br>
+
+                <strong>
+                Date:
+                </strong>
+
+                ${sale.date}
+
+            </div>
+
+        </div>
+
+
+        <div class="invoice-info">
+
+            <strong>
+            Customer:
+            </strong>
+
+            ${sale.customer}
+
+        </div>
+
+
+        <table>
+
+            <tr>
+
+                <th>
+                Product
+                </th>
+
+                <th>
+                Quantity
+                </th>
+
+                <th>
+                Unit Price
+                </th>
+
+                <th>
+                Total
+                </th>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                ${sale.product}
+                </td>
+
+                <td>
+                ${sale.quantity}
+                </td>
+
+                <td>
+                ৳ ${sale.price}
+                </td>
+
+                <td>
+                ৳ ${sale.total}
+                </td>
+
+            </tr>
+
+        </table>
+
+
+        <div class="total-section">
+
+            <strong>
+            Total:
+            </strong>
+
+            ৳ ${sale.total}
+
+            <br>
+
+            <strong>
+            Paid:
+            </strong>
+
+            ৳ ${sale.paid}
+
+            <br>
+
+            <strong>
+            Due:
+            </strong>
+
+            ৳ ${sale.due}
+
+        </div>
+
+
+        <br>
+
+
+        <button
+        class="print-btn no-print"
+        onclick="window.print()">
+
+        🖨️ Print Invoice
+
+        </button>
+
+
+    </div>
+
+    `;
+
+
+    window.scrollTo({
+
+        top: document.body.scrollHeight,
+
+        behavior: "smooth"
+
+    });
+
+}
+
+
+showSales();
+
+
+</script>
+
+
+</body>
+
+</html>
