@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="bn">
 
@@ -68,6 +69,11 @@ button {
 
 .history-btn {
     background: #2563eb;
+    margin-left: 5px;
+}
+
+.payment-btn {
+    background: #16a34a;
     margin-left: 5px;
 }
 
@@ -346,6 +352,19 @@ function getSales() {
 
 
 /* =========================
+   PAYMENTS
+========================= */
+
+function getPayments() {
+
+    return JSON.parse(
+        localStorage.getItem("payments") || "[]"
+    );
+
+}
+
+
+/* =========================
    ADD CUSTOMER
 ========================= */
 
@@ -381,15 +400,15 @@ function addCustomer() {
     const customers = getCustomers();
 
 
-    /* একই নাম + ফোন থাকলে */
-
     const alreadyExists =
         customers.some(customer =>
 
-            customer.name.toLowerCase() ===
+            String(customer.name || "")
+            .toLowerCase() ===
             name.toLowerCase() &&
 
-            customer.phone === phone
+            String(customer.phone || "") ===
+            phone
 
         );
 
@@ -430,6 +449,7 @@ function addCustomer() {
 
     showCustomers();
 
+
     alert(
         "✅ Customer সফলভাবে যোগ হয়েছে।"
     );
@@ -457,7 +477,8 @@ function deleteCustomer(id) {
 
     customers =
         customers.filter(
-            customer => customer.id !== id
+            customer =>
+                Number(customer.id) !== Number(id)
         );
 
 
@@ -480,8 +501,6 @@ function getCustomerSales(customer) {
 
     return sales.filter(sale => {
 
-        /* নতুন Sales */
-
         if (
             sale.customerId &&
             Number(sale.customerId) ===
@@ -493,13 +512,33 @@ function getCustomerSales(customer) {
         }
 
 
-        /* পুরোনো Sales-এর জন্য */
-
         return (
             String(sale.customer || "")
             .toLowerCase() ===
             String(customer.name || "")
             .toLowerCase()
+        );
+
+    });
+
+}
+
+
+/* =========================
+   CUSTOMER PAYMENTS
+========================= */
+
+function getCustomerPayments(customer) {
+
+    const payments =
+        getPayments();
+
+
+    return payments.filter(payment => {
+
+        return (
+            Number(payment.customerId) ===
+            Number(customer.id)
         );
 
     });
@@ -517,11 +556,17 @@ function getCustomerStats(customer) {
         getCustomerSales(customer);
 
 
+    const payments =
+        getCustomerPayments(customer);
+
+
     let total = 0;
 
-    let paid = 0;
+    let paidFromSales = 0;
 
-    let due = 0;
+    let originalDue = 0;
+
+    let separatePayments = 0;
 
 
     sales.forEach(sale => {
@@ -529,13 +574,32 @@ function getCustomerStats(customer) {
         total +=
             Number(sale.total) || 0;
 
-        paid +=
+        paidFromSales +=
             Number(sale.paid) || 0;
 
-        due +=
+        originalDue +=
             Number(sale.due) || 0;
 
     });
+
+
+    payments.forEach(payment => {
+
+        separatePayments +=
+            Number(payment.amount) || 0;
+
+    });
+
+
+    const currentDue =
+        Math.max(
+            originalDue - separatePayments,
+            0
+        );
+
+
+    const totalPaid =
+        paidFromSales + separatePayments;
 
 
     return {
@@ -544,9 +608,13 @@ function getCustomerStats(customer) {
 
         total: total,
 
-        paid: paid,
+        paid: totalPaid,
 
-        due: due
+        originalDue: originalDue,
+
+        payments: separatePayments,
+
+        due: currentDue
 
     };
 
@@ -580,6 +648,18 @@ function toggleHistory(id) {
         element.style.display = "none";
 
     }
+
+}
+
+
+/* =========================
+   PAYMENT PAGE
+========================= */
+
+function openPaymentPage() {
+
+    window.location.href =
+        "payments.html";
 
 }
 
@@ -642,9 +722,12 @@ function showCustomers() {
             getCustomerStats(customer);
 
 
-        allSales += stats.total;
+        allSales +=
+            stats.total;
 
-        allDue += stats.due;
+
+        allDue +=
+            stats.due;
 
     });
 
@@ -832,7 +915,7 @@ function showCustomers() {
                     <div class="stat">
 
                         <strong>
-                        🔴 Due
+                        🔴 Current Due
                         </strong>
 
                         <span class="due">
@@ -849,6 +932,15 @@ function showCustomers() {
                     onclick="toggleHistory(${customer.id})">
 
                     📋 Sales History
+
+                </button>
+
+
+                <button
+                    class="payment-btn"
+                    onclick="openPaymentPage()">
+
+                    💰 Due Payment
 
                 </button>
 
@@ -892,3 +984,4 @@ showCustomers();
 </body>
 
 </html>
+```
