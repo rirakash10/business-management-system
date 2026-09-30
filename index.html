@@ -368,10 +368,23 @@ Business Management System
 <span id="totalInvoices">0</span>
 </h2>
 
+</div>
+
+
 <div class="card">
 
 <div class="icon">
 📥
+</div>
+
+<h3>
+মোট Purchase
+</h3>
+
+<h2>
+৳ <span id="totalPurchases">0</span>
+</h2>
+
 </div>
 
 <h3>
@@ -765,12 +778,17 @@ function updateDashboard() {
     const customers = getCustomers();
 
     const employees = getEmployees();
-
+const purchases =
+    JSON.parse(
+        localStorage.getItem("purchases") || "[]"
+    );
 
     let totalSales = 0;
 
     let totalExpenses = 0;
-
+    
+    let totalPurchases = 0;
+    
     let totalDue = 0;
 
     let todaySales = 0;
@@ -815,7 +833,16 @@ const totalPayments = payments.reduce(
 );
 
 totalDue = Math.max(totalDue - totalPayments, 0);
+/* =====================
+   PURCHASES
+===================== */
 
+purchases.forEach(purchase => {
+
+    totalPurchases +=
+        Number(purchase.totalCost) || 0;
+
+});
     /* =====================
        EXPENSES
     ===================== */
@@ -878,7 +905,10 @@ totalDue = Math.max(totalDue - totalPayments, 0);
     document.getElementById(
         "totalInvoices"
     ).innerText = sales.length;
-
+   
+    document.getElementById(
+    "totalPurchases"
+).innerText = totalPurchases;
 
     document.getElementById(
         "todaySales"
