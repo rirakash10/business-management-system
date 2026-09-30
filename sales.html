@@ -834,7 +834,11 @@ function addSale() {
     loadCustomers();
 
 }
-
+    
+localStorage.setItem(
+"lastUpdate",
+Date.now()
+);
 
 /* =========================
    RESET FORM
