@@ -60,40 +60,59 @@ button {
 .print-btn {
     background: #111827;
     color: white;
+    margin-top: 15px;
 }
 
 .invoice {
     border: 1px solid #ddd;
-    padding: 25px;
+    padding: 30px;
     margin-top: 20px;
     border-radius: 10px;
+    background: white;
 }
 
 .invoice-header {
     display: flex;
     justify-content: space-between;
+    gap: 30px;
     margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #111827;
 }
 
 .invoice-title {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: bold;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .business-name {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
 }
 
 .business-details {
     margin-top: 8px;
-    line-height: 1.6;
+    line-height: 1.7;
     color: #4b5563;
 }
 
+.invoice-meta {
+    text-align: right;
+    line-height: 1.8;
+}
+
 .invoice-info {
-    margin-bottom: 20px;
+    margin: 20px 0;
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 8px;
+    line-height: 1.8;
+}
+
+.customer-title {
+    font-weight: bold;
+    font-size: 16px;
 }
 
 table {
@@ -104,7 +123,7 @@ table {
 
 th,
 td {
-    border-bottom: 1px solid #ddd;
+    border: 1px solid #ddd;
     padding: 12px;
     text-align: left;
 }
@@ -115,8 +134,41 @@ th {
 
 .total-section {
     margin-top: 20px;
-    text-align: right;
-    line-height: 1.8;
+    margin-left: auto;
+    max-width: 350px;
+    line-height: 2;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    padding: 4px 0;
+}
+
+.grand-total {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.due-row {
+    color: #dc2626;
+    font-weight: bold;
+}
+
+.payment-info {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.thank-you {
+    margin-top: 35px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+    text-align: center;
+    color: #6b7280;
 }
 
 .invoice-list {
@@ -129,6 +181,35 @@ th {
     padding: 15px;
     margin-bottom: 10px;
     border-radius: 8px;
+}
+
+.invoice-item strong {
+    font-size: 16px;
+}
+
+@media(max-width: 700px) {
+
+    .invoice-header {
+        flex-direction: column;
+    }
+
+    .invoice-meta {
+        text-align: left;
+    }
+
+    .invoice {
+        padding: 15px;
+    }
+
+    table {
+        font-size: 13px;
+    }
+
+    th,
+    td {
+        padding: 8px;
+    }
+
 }
 
 @media print {
@@ -146,15 +227,18 @@ th {
 
     .container {
         padding: 0;
+        max-width: 100%;
     }
 
     .card {
         box-shadow: none;
         border: none;
+        padding: 0;
     }
 
     .invoice {
         border: none;
+        padding: 10px;
     }
 
 }
@@ -282,20 +366,35 @@ function showSales() {
             ${sale.product}
             </strong>
 
-            <br>
+            <br><br>
 
-            Customer:
+            👤 Customer:
             ${sale.customer}
 
             <br>
 
-            Total:
+            📞 Phone:
+            ${sale.customerPhone || "-"}
+
+            <br>
+
+            💰 Total:
             ৳ ${sale.total}
 
             <br>
 
-            Due:
+            💵 Paid:
+            ৳ ${sale.paid}
+
+            <br>
+
+            ⚠️ Due:
             ৳ ${sale.due}
+
+            <br>
+
+            💳 Payment:
+            ${sale.paymentMethod || "-"}
 
             <br><br>
 
@@ -349,7 +448,7 @@ function createInvoice(id) {
         getBusinessSettings();
 
 
-    // Invoice Number
+    // Professional Invoice Number
 
     const invoiceNumber =
         "INV-" +
@@ -385,11 +484,18 @@ function createInvoice(id) {
         settings.address || "";
 
 
+    const businessDescription =
+        settings.description || "";
+
+
     invoiceArea.innerHTML = `
 
     <div class="invoice">
 
-        <!-- Invoice Header -->
+
+        <!-- ==================================
+             INVOICE HEADER
+        ================================== -->
 
         <div class="invoice-header">
 
@@ -406,6 +512,13 @@ function createInvoice(id) {
 
 
                 <div class="business-details">
+
+                    ${
+                        businessDescription
+                        ? businessDescription + "<br>"
+                        : ""
+                    }
+
 
                     ${
                         businessPhone
@@ -439,10 +552,10 @@ function createInvoice(id) {
             </div>
 
 
-            <div>
+            <div class="invoice-meta">
 
                 <strong>
-                Invoice:
+                Invoice No:
                 </strong>
 
                 ${invoiceNumber}
@@ -460,20 +573,32 @@ function createInvoice(id) {
         </div>
 
 
-        <!-- Customer -->
+        <!-- ==================================
+             CUSTOMER INFORMATION
+        ================================== -->
 
         <div class="invoice-info">
 
-            <strong>
-            Customer:
-            </strong>
+            <div class="customer-title">
+                BILL TO
+            </div>
 
+
+            👤 <strong>Customer:</strong>
             ${sale.customer}
+
+            <br>
+
+
+            📞 <strong>Phone:</strong>
+            ${sale.customerPhone || "-"}
 
         </div>
 
 
-        <!-- Product Table -->
+        <!-- ==================================
+             PRODUCT TABLE
+        ================================== -->
 
         <table>
 
@@ -521,41 +646,105 @@ function createInvoice(id) {
         </table>
 
 
-        <!-- Total -->
+        <!-- ==================================
+             PAYMENT INFORMATION
+        ================================== -->
 
-        <div class="total-section">
-
-            <strong>
-            Total:
-            </strong>
-
-            ৳ ${sale.total}
-
-            <br>
-
+        <div class="payment-info">
 
             <strong>
-            Paid:
+            💳 Payment Method:
             </strong>
 
-            ৳ ${sale.paid}
-
-            <br>
-
-
-            <strong>
-            Due:
-            </strong>
-
-            ৳ ${sale.due}
+            ${sale.paymentMethod || "-"}
 
         </div>
 
 
-        <br>
+        <!-- ==================================
+             TOTAL SECTION
+        ================================== -->
+
+        <div class="total-section">
 
 
-        <!-- Print -->
+            <div class="total-row">
+
+                <span>
+                Subtotal
+                </span>
+
+                <span>
+                ৳ ${sale.total}
+                </span>
+
+            </div>
+
+
+            <div class="total-row grand-total">
+
+                <span>
+                Total
+                </span>
+
+                <span>
+                ৳ ${sale.total}
+                </span>
+
+            </div>
+
+
+            <div class="total-row">
+
+                <span>
+                Paid
+                </span>
+
+                <span>
+                ৳ ${sale.paid}
+                </span>
+
+            </div>
+
+
+            <div class="total-row due-row">
+
+                <span>
+                Due
+                </span>
+
+                <span>
+                ৳ ${sale.due}
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- ==================================
+             THANK YOU
+        ================================== -->
+
+        <div class="thank-you">
+
+            Thank you for your business! ❤️
+
+            <br>
+
+            ${
+                businessName
+                ? businessName
+                : "Business Management System"
+            }
+
+        </div>
+
+
+        <!-- ==================================
+             PRINT
+        ================================== -->
 
         <button
         class="print-btn no-print"
