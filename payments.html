@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Due Payment Management</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f5f7fb;
+    color: #1f2937;
+}
+
+.header {
+    background: #111827;
+    color: white;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 25px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+button {
+    border: none;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-top: 15px;
+}
+
+.save-btn {
+    background: #111827;
+    color: white;
+}
+
+.dashboard-btn {
+    background: white;
+    color: #111827;
+}
+
+.delete-btn {
+    background: #dc2626;
+    color: white;
+    padding: 7px 12px;
+    margin: 0;
+}
+
+.customer-info {
+    margin-top: 10px;
+    padding: 12px;
+    background: #f3f4f6;
+    border-radius: 8px;
+}
+
+.due {
+    color: #dc2626;
+    font-weight: bold;
+}
+
+.success {
+    color: #16a34a;
+    font-weight: bold;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th,
+td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+th {
+    background: #f3f4f6;
+}
+
+.empty {
+    color: #6b7280;
+}
+
+.summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.summary-box {
+    background: #f3f4f6;
+    padding: 18px;
+    border-radius: 10px;
+}
+
+.summary-box h3 {
+    margin-top: 0;
+}
+
+@media(max-width: 700px) {
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .summary {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header class="header">
+
+<h1>💰 Due Payment Management</h1>
+
+<p>Customer-এর বকেয়া টাকা জমা নেওয়ার ব্যবস্থা</p>
+
+<button
+class="dashboard-btn"
+onclick="window.location.href='index.html'">
+
+← Dashboard
+
+</button>
+
+</header>
+
+
+<main class="container">
+
+
+<!-- PAYMENT FORM -->
+
+<div class="card">
+
+<h2>➕ Customer-এর Due Payment নিন</h2>
+
+
+<div class="form-grid">
+
+
+<div>
+
+<label>Customer</label>
+
+<select
+id="customer"
+onchange="customerSelected()">
+
+<option value="">
+-- Customer নির্বাচন করুন --
+</option>
+
+</select>
+
+<div
+id="customerInfo"
+class="customer-info">
+
+Customer নির্বাচন করুন
+
+</div>
+
+</div>
+
+
+<div>
+
+<label>Payment Amount</label>
+
+<input
+type="number"
+id="amount"
+min="1"
+placeholder="কত টাকা জমা নিয়েছেন?"
+oninput="calculateRemaining()">
+
+</div>
+
+
+<div>
+
+<label>Payment Method</label>
+
+<select id="paymentMethod">
+
+<option value="Cash">
+💵 Cash
+</option>
+
+<option value="bKash">
+📱 bKash
+</option>
+
+<option value="Nagad">
+📱 Nagad
+</option>
+
+<option value="Card">
+💳 Card
+</option>
+
+<option value="Bank">
+🏦 Bank
+</option>
+
+<option value="Other">
+🔹 Other
+</option>
+
+</select>
+
+</div>
+
+
+<div>
+
+<label>Note</label>
+
+<input
+type="text"
+id="note"
+placeholder="যেমন: পুরাতন বাকি পরিশোধ">
+
+</div>
+
+
+</div>
+
+
+<div
+id="remainingBox"
+class="customer-info">
+
+Remaining Due: ৳ 0
+
+</div>
+
+
+<button
+class="save-btn"
+onclick="addPayment()">
+
+💾 Payment Save করুন
+
+</button>
+
+
+</div>
+
+
+<!-- SUMMARY -->
+
+<div class="card">
+
+<h2>📊 Payment Summary</h2>
+
+<div class="summary">
+
+
+<div class="summary-box">
+
+<h3>💰 Total Collected</h3>
+
+<strong id="totalCollected">
+৳ 0
+</strong>
+
+</div>
+
+
+<div class="summary-box">
+
+<h3>📋 Payment Count</h3>
+
+<strong id="paymentCount">
+0
+</strong>
+
+</div>
+
+
+<div class="summary-box">
+
+<h3>🔴 Current Total Due</h3>
+
+<strong
+id="currentDue"
+class="due">
+
+৳ 0
+
+</strong>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- PAYMENT HISTORY -->
+
+<div class="card">
+
+<h2>📋 Payment History</h2>
+
+<div id="paymentList"></div>
+
+</div>
+
+
+</main>
+
+
+<script>
+
+
+/* =========================
+   CUSTOMERS
+========================= */
+
+function getCustomers() {
+
+    return JSON.parse(
+        localStorage.getItem("customers") || "[]"
+    );
+
+}
+
+
+/* =========================
+   SALES
+========================= */
+
+function getSales() {
+
+    return JSON.parse(
+        localStorage.getItem("sales") || "[]"
+    );
+
+}
+
+
+/* =========================
+   PAYMENTS
+========================= */
+
+function getPayments() {
+
+    return JSON.parse(
+        localStorage.getItem("payments") || "[]"
+    );
+
+}
+
+
+function savePayments(payments) {
+
+    localStorage.setItem(
+        "payments",
+        JSON.stringify(payments)
+    );
+
+}
+
+
+/* =========================
+   LOAD CUSTOMERS
+========================= */
+
+function loadCustomers() {
+
+    const customers =
+        getCustomers();
+
+
+    const select =
+        document.getElementById("customer");
+
+
+    select.innerHTML = `
+
+    <option value="">
+    -- Customer নির্বাচন করুন --
+    </option>
+
+    `;
+
+
+    customers.forEach(customer => {
+
+        const option =
+            document.createElement("option");
+
+
+        option.value =
+            customer.id;
+
+
+        option.textContent =
+            customer.name +
+            (
+                customer.phone
+                ? " — " + customer.phone
+                : ""
+            );
+
+
+        select.appendChild(option);
+
+    });
+
+}
+
+
+/* =========================
+   CUSTOMER DUE
+========================= */
+
+function getCustomerDue(customer) {
+
+    if (!customer) {
+
+        return 0;
+
+    }
+
+
+    const sales =
+        getSales();
+
+
+    const payments =
+        getPayments();
+
+
+    let saleDue = 0;
+
+    let paidAfterSale = 0;
+
+
+    sales.forEach(sale => {
+
+        const sameCustomer =
+
+            (
+                sale.customerId &&
+                Number(sale.customerId) ===
+                Number(customer.id)
+            )
+
+            ||
+
+            (
+                String(sale.customer || "")
+                .toLowerCase() ===
+                String(customer.name || "")
+                .toLowerCase()
+            );
+
+
+        if (sameCustomer) {
+
+            saleDue +=
+                Number(sale.due) || 0;
+
+        }
+
+    });
+
+
+    payments.forEach(payment => {
+
+        if (
+            Number(payment.customerId) ===
+            Number(customer.id)
+        ) {
+
+            paidAfterSale +=
+                Number(payment.amount) || 0;
+
+        }
+
+    });
+
+
+    return Math.max(
+        saleDue - paidAfterSale,
+        0
+    );
+
+}
+
+
+/* =========================
+   CUSTOMER SELECTED
+========================= */
+
+function customerSelected() {
+
+    const id =
+        Number(
+            document.getElementById(
+                "customer"
+            ).value
+        );
+
+
+    const customers =
+        getCustomers();
+
+
+    const customer =
+        customers.find(
+            item => item.id === id
+        );
+
+
+    const info =
+        document.getElementById(
+            "customerInfo"
+        );
+
+
+    if (!customer) {
+
+        info.innerHTML =
+            "Customer নির্বাচন করুন";
+
+
+        document.getElementById(
+            "remainingBox"
+        ).innerText =
+            "Remaining Due: ৳ 0";
+
+        return;
+
+    }
+
+
+    const due =
+        getCustomerDue(customer);
+
+
+    info.innerHTML = `
+
+        👤 <strong>${customer.name}</strong>
+        <br>
+
+        📞 ${customer.phone || "-"}
+
+        <br>
+
+        🔴 Current Due:
+        <span class="due">
+        ৳ ${due}
+        </span>
+
+    `;
+
+
+    calculateRemaining();
+
+}
+
+
+/* =========================
+   CALCULATE REMAINING
+========================= */
+
+function calculateRemaining() {
+
+    const id =
+        Number(
+            document.getElementById(
+                "customer"
+            ).value
+        );
+
+
+    const amount =
+        Number(
+            document.getElementById(
+                "amount"
+            ).value
+        ) || 0;
+
+
+    const customer =
+        getCustomers().find(
+            item => item.id === id
+        );
+
+
+    if (!customer) {
+
+        document.getElementById(
+            "remainingBox"
+        ).innerText =
+            "Remaining Due: ৳ 0";
+
+        return;
+
+    }
+
+
+    const due =
+        getCustomerDue(customer);
+
+
+    const remaining =
+        Math.max(
+            due - amount,
+            0
+        );
+
+
+    document.getElementById(
+        "remainingBox"
+    ).innerHTML = `
+
+        Current Due:
+        <span class="due">
+        ৳ ${due}
+        </span>
+
+        &nbsp; →
+
+        Remaining Due:
+        <span class="success">
+        ৳ ${remaining}
+        </span>
+
+    `;
+
+}
+
+
+/* =========================
+   ADD PAYMENT
+========================= */
+
+function addPayment() {
+
+    const customerId =
+        Number(
+            document.getElementById(
+                "customer"
+            ).value
+        );
+
+
+    const amount =
+        Number(
+            document.getElementById(
+                "amount"
+            ).value
+        );
+
+
+    const paymentMethod =
+        document.getElementById(
+            "paymentMethod"
+        ).value;
+
+
+    const note =
+        document.getElementById(
+            "note"
+        ).value.trim();
+
+
+    const customer =
+        getCustomers().find(
+            item => item.id === customerId
+        );
+
+
+    if (!customer) {
+
+        alert(
+            "Customer নির্বাচন করুন"
+        );
+
+        return;
+
+    }
+
+
+    if (!amount || amount <= 0) {
+
+        alert(
+            "সঠিক Payment Amount দিন"
+        );
+
+        return;
+
+    }
+
+
+    const currentDue =
+        getCustomerDue(customer);
+
+
+    if (currentDue <= 0) {
+
+        alert(
+            "এই Customer-এর কোনো Due নেই।"
+        );
+
+        return;
+
+    }
+
+
+    if (amount > currentDue) {
+
+        alert(
+            "Payment Amount বর্তমান Due-এর চেয়ে বেশি হতে পারবে না।"
+        );
+
+        return;
+
+    }
+
+
+    const payment = {
+
+        id: Date.now(),
+
+        customerId:
+            customer.id,
+
+        customer:
+            customer.name,
+
+        phone:
+            customer.phone || "",
+
+        amount:
+            amount,
+
+        paymentMethod:
+            paymentMethod,
+
+        note:
+            note,
+
+        date:
+            new Date().toLocaleString("bn-BD")
+
+    };
+
+
+    const payments =
+        getPayments();
+
+
+    payments.push(payment);
+
+
+    savePayments(payments);
+
+
+    alert(
+        "✅ Payment সফলভাবে Save হয়েছে।"
+    );
+
+
+    document.getElementById(
+        "customer"
+    ).value = "";
+
+
+    document.getElementById(
+        "amount"
+    ).value = "";
+
+
+    document.getElementById(
+        "paymentMethod"
+    ).value = "Cash";
+
+
+    document.getElementById(
+        "note"
+    ).value = "";
+
+
+    document.getElementById(
+        "customerInfo"
+    ).innerText =
+        "Customer নির্বাচন করুন";
+
+
+    document.getElementById(
+        "remainingBox"
+    ).innerText =
+        "Remaining Due: ৳ 0";
+
+
+    showPayments();
+
+}
+
+
+/* =========================
+   DELETE PAYMENT
+========================= */
+
+function deletePayment(id) {
+
+    if (!confirm(
+        "এই Payment Entry delete করবেন?"
+    )) {
+
+        return;
+
+    }
+
+
+    let payments =
+        getPayments();
+
+
+    payments =
+        payments.filter(
+            payment =>
+                payment.id !== id
+        );
+
+
+    savePayments(payments);
+
+
+    showPayments();
+
+}
+
+
+/* =========================
+   SHOW PAYMENTS
+========================= */
+
+function showPayments() {
+
+    const payments =
+        getPayments();
+
+
+    const list =
+        document.getElementById(
+            "paymentList"
+        );
+
+
+    let totalCollected = 0;
+
+
+    payments.forEach(payment => {
+
+        totalCollected +=
+            Number(payment.amount) || 0;
+
+    });
+
+
+    /* Current Total Due */
+
+    let currentDue = 0;
+
+
+    getCustomers().forEach(customer => {
+
+        currentDue +=
+            getCustomerDue(customer);
+
+    });
+
+
+    document.getElementById(
+        "totalCollected"
+    ).innerText =
+        "৳ " + totalCollected;
+
+
+    document.getElementById(
+        "paymentCount"
+    ).innerText =
+        payments.length;
+
+
+    document.getElementById(
+        "currentDue"
+    ).innerText =
+        "৳ " + currentDue;
+
+
+    if (payments.length === 0) {
+
+        list.innerHTML =
+            "<p class='empty'>এখনো কোনো Due Payment নেওয়া হয়নি।</p>";
+
+        return;
+
+    }
+
+
+    let html = `
+
+    <table>
+
+    <tr>
+
+    <th>Date</th>
+
+    <th>Customer</th>
+
+    <th>Phone</th>
+
+    <th>Amount</th>
+
+    <th>Payment</th>
+
+    <th>Note</th>
+
+    <th>Action</th>
+
+    </tr>
+
+    `;
+
+
+    payments
+    .slice()
+    .reverse()
+    .forEach(payment => {
+
+        html += `
+
+        <tr>
+
+        <td>
+        ${payment.date}
+        </td>
+
+        <td>
+        ${payment.customer}
+        </td>
+
+        <td>
+        ${payment.phone || "-"}
+        </td>
+
+        <td class="success">
+        ৳ ${payment.amount}
+        </td>
+
+        <td>
+        ${payment.paymentMethod}
+        </td>
+
+        <td>
+        ${payment.note || "-"}
+        </td>
+
+        <td>
+
+        <button
+        class="delete-btn"
+        onclick="deletePayment(${payment.id})">
+
+        Delete
+
+        </button>
+
+        </td>
+
+        </tr>
+
+        `;
+
+    });
+
+
+    html += "</table>";
+
+
+    list.innerHTML = html;
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+loadCustomers();
+
+showPayments();
+
+
+</script>
+
+
+</body>
+
+</html>
