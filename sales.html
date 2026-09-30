@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Sales Management</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f5f7fb;
+    color: #1f2937;
+}
+
+.header {
+    background: #111827;
+    color: white;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 25px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+button {
+    border: none;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-top: 15px;
+}
+
+.add-btn {
+    background: #111827;
+    color: white;
+}
+
+.delete-btn {
+    background: #dc2626;
+    color: white;
+    padding: 7px 12px;
+    margin: 0;
+}
+
+.dashboard-btn {
+    background: white;
+    color: #111827;
+}
+
+.total-box {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f3f4f6;
+    border-radius: 8px;
+    font-size: 18px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th,
+td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+th {
+    background: #f3f4f6;
+}
+
+@media(max-width: 700px) {
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    table {
+        font-size: 13px;
+    }
+
+    .container {
+        padding: 15px;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header class="header">
+
+<h1>🛒 Sales Management</h1>
+
+<button
+class="dashboard-btn"
+onclick="window.location.href='index.html'">
+
+← Dashboard
+
+</button>
+
+</header>
+
+
+<main class="container">
+
+
+<div class="card">
+
+<h2>➕ নতুন Sale তৈরি করুন</h2>
+
+
+<div class="form-grid">
+
+
+<div>
+
+<label>Customer Name</label>
+
+<input
+type="text"
+id="customer"
+placeholder="Customer-এর নাম">
+
+</div>
+
+
+<div>
+
+<label>Product Name</label>
+
+<input
+type="text"
+id="product"
+placeholder="Product-এর নাম">
+
+</div>
+
+
+<div>
+
+<label>Quantity</label>
+
+<input
+type="number"
+id="quantity"
+value="1"
+min="1"
+oninput="calculateTotal()">
+
+</div>
+
+
+<div>
+
+<label>Sale Price (প্রতি পিস)</label>
+
+<input
+type="number"
+id="price"
+placeholder="প্রতি পিস দাম"
+oninput="calculateTotal()">
+
+</div>
+
+
+<div>
+
+<label>Paid Amount</label>
+
+<input
+type="number"
+id="paid"
+value="0"
+oninput="calculateDue()">
+
+</div>
+
+
+</div>
+
+
+<div class="total-box">
+
+<strong>Total:</strong>
+
+৳ <span id="total">0</span>
+
+<br><br>
+
+<strong>Due:</strong>
+
+৳ <span id="due">0</span>
+
+</div>
+
+
+<button
+class="add-btn"
+onclick="addSale()">
+
+💾 Sale Save করুন
+
+</button>
+
+
+</div>
+
+
+<div class="card">
+
+<h2>📋 Sales History</h2>
+
+<div id="salesList"></div>
+
+</div>
+
+
+</main>
+
+
+<script>
+
+function getSales() {
+
+    return JSON.parse(
+        localStorage.getItem("sales") || "[]"
+    );
+
+}
+
+
+function saveSales(sales) {
+
+    localStorage.setItem(
+        "sales",
+        JSON.stringify(sales)
+    );
+
+}
+
+
+function calculateTotal() {
+
+    const quantity =
+        Number(document.getElementById("quantity").value) || 0;
+
+    const price =
+        Number(document.getElementById("price").value) || 0;
+
+    const total = quantity * price;
+
+    document.getElementById("total").innerText = total;
+
+    calculateDue();
+
+}
+
+
+function calculateDue() {
+
+    const quantity =
+        Number(document.getElementById("quantity").value) || 0;
+
+    const price =
+        Number(document.getElementById("price").value) || 0;
+
+    const paid =
+        Number(document.getElementById("paid").value) || 0;
+
+    const total = quantity * price;
+
+    const due = Math.max(total - paid, 0);
+
+    document.getElementById("due").innerText = due;
+
+}
+
+
+function addSale() {
+
+    const customer =
+        document.getElementById("customer").value.trim();
+
+    const product =
+        document.getElementById("product").value.trim();
+
+    const quantity =
+        Number(document.getElementById("quantity").value);
+
+    const price =
+        Number(document.getElementById("price").value);
+
+    const paid =
+        Number(document.getElementById("paid").value) || 0;
+
+
+    if (!customer || !product || !quantity || !price) {
+
+        alert("Customer, Product, Quantity এবং Price পূরণ করুন।");
+
+        return;
+
+    }
+
+
+    const total = quantity * price;
+
+    const due = Math.max(total - paid, 0);
+
+
+    const sale = {
+
+        id: Date.now(),
+
+        customer: customer,
+
+        product: product,
+
+        quantity: quantity,
+
+        price: price,
+
+        total: total,
+
+        paid: paid,
+
+        due: due,
+
+        date: new Date().toLocaleString("bn-BD")
+
+    };
+
+
+    const sales = getSales();
+
+    sales.push(sale);
+
+    saveSales(sales);
+
+
+    alert("✅ Sale সফলভাবে Save হয়েছে।");
+
+
+    document.getElementById("customer").value = "";
+
+    document.getElementById("product").value = "";
+
+    document.getElementById("quantity").value = "1";
+
+    document.getElementById("price").value = "";
+
+    document.getElementById("paid").value = "0";
+
+
+    calculateTotal();
+
+    showSales();
+
+}
+
+
+function deleteSale(id) {
+
+    if (!confirm("এই Sale delete করতে চান?")) {
+
+        return;
+
+    }
+
+
+    let sales = getSales();
+
+    sales = sales.filter(
+        sale => sale.id !== id
+    );
+
+    saveSales(sales);
+
+    showSales();
+
+}
+
+
+function showSales() {
+
+    const sales = getSales();
+
+    const list =
+        document.getElementById("salesList");
+
+
+    if (sales.length === 0) {
+
+        list.innerHTML =
+        "<p>এখনও কোনো Sale তৈরি হয়নি।</p>";
+
+        return;
+
+    }
+
+
+    let html = `
+
+    <table>
+
+    <tr>
+
+    <th>Date</th>
+
+    <th>Customer</th>
+
+    <th>Product</th>
+
+    <th>Qty</th>
+
+    <th>Total</th>
+
+    <th>Paid</th>
+
+    <th>Due</th>
+
+    <th>Action</th>
+
+    </tr>
+
+    `;
+
+
+    sales.forEach(sale => {
+
+        html += `
+
+        <tr>
+
+        <td>${sale.date}</td>
+
+        <td>${sale.customer}</td>
+
+        <td>${sale.product}</td>
+
+        <td>${sale.quantity}</td>
+
+        <td>৳ ${sale.total}</td>
+
+        <td>৳ ${sale.paid}</td>
+
+        <td>৳ ${sale.due}</td>
+
+        <td>
+
+        <button
+        class="delete-btn"
+        onclick="deleteSale(${sale.id})">
+
+        Delete
+
+        </button>
+
+        </td>
+
+        </tr>
+
+        `;
+
+    });
+
+
+    html += "</table>";
+
+    list.innerHTML = html;
+
+}
+
+
+showSales();
+
+</script>
+
+
+</body>
+
+</html>
