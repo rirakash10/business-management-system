@@ -792,6 +792,8 @@ const purchases =
     
     let totalPurchases = 0;
     
+    let totalStockValue = 0;
+    
     let totalDue = 0;
 
     let todaySales = 0;
@@ -846,6 +848,19 @@ purchases.forEach(purchase => {
         Number(purchase.totalCost) || 0;
 
 });
+    products.forEach(product => {
+
+    const quantity =
+        Number(product.quantity) || 0;
+
+    const buyPrice =
+        Number(product.buyPrice) || 0;
+
+    totalStockValue +=
+        quantity * buyPrice;
+
+});
+    
     /* =====================
        EXPENSES
     ===================== */
@@ -913,11 +928,15 @@ purchases.forEach(purchase => {
     "totalPurchases"
 ).innerText = totalPurchases;
 
+document.getElementById(
+    "totalStockValue"
+).innerText = totalStockValue;
+    
     document.getElementById(
         "todaySales"
     ).innerText = todaySales;
 
-
+    
     document.getElementById(
         "todayExpenses"
     ).innerText = todayExpenses;
