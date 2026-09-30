@@ -5,7 +5,8 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <title>Invoice Management</title>
 
@@ -61,11 +62,6 @@ button {
     color: white;
 }
 
-.delete-btn {
-    background: #dc2626;
-    color: white;
-}
-
 .invoice {
     border: 1px solid #ddd;
     padding: 25px;
@@ -82,6 +78,18 @@ button {
 .invoice-title {
     font-size: 28px;
     font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.business-name {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.business-details {
+    margin-top: 8px;
+    line-height: 1.6;
+    color: #4b5563;
 }
 
 .invoice-info {
@@ -192,11 +200,15 @@ onclick="window.location.href='index.html'">
 
 <div class="card">
 
-<h2 class="no-print">🧾 Invoice Preview</h2>
+<h2 class="no-print">
+🧾 Invoice Preview
+</h2>
 
 <div id="invoiceArea">
 
-<p>উপরের তালিকা থেকে একটি Sale নির্বাচন করুন।</p>
+<p>
+উপরের তালিকা থেকে একটি Sale নির্বাচন করুন।
+</p>
 
 </div>
 
@@ -209,6 +221,10 @@ onclick="window.location.href='index.html'">
 <script>
 
 
+// ========================================
+// SALES DATA
+// ========================================
+
 function getSales() {
 
     return JSON.parse(
@@ -217,6 +233,23 @@ function getSales() {
 
 }
 
+
+// ========================================
+// BUSINESS SETTINGS
+// ========================================
+
+function getBusinessSettings() {
+
+    return JSON.parse(
+        localStorage.getItem("businessSettings") || "{}"
+    );
+
+}
+
+
+// ========================================
+// SHOW SALES
+// ========================================
 
 function showSales() {
 
@@ -286,6 +319,10 @@ function showSales() {
 }
 
 
+// ========================================
+// CREATE INVOICE
+// ========================================
+
 function createInvoice(id) {
 
     const sales = getSales();
@@ -306,6 +343,14 @@ function createInvoice(id) {
     }
 
 
+    // Business Settings
+
+    const settings =
+        getBusinessSettings();
+
+
+    // Invoice Number
+
     const invoiceNumber =
         "INV-" +
         new Date().getFullYear() +
@@ -317,20 +362,78 @@ function createInvoice(id) {
         document.getElementById("invoiceArea");
 
 
+    // Business Information
+
+    const businessName =
+        settings.name ||
+        "Business Management System";
+
+
+    const businessPhone =
+        settings.phone || "";
+
+
+    const businessEmail =
+        settings.email || "";
+
+
+    const businessWebsite =
+        settings.website || "";
+
+
+    const businessAddress =
+        settings.address || "";
+
+
     invoiceArea.innerHTML = `
 
     <div class="invoice">
+
+        <!-- Invoice Header -->
 
         <div class="invoice-header">
 
             <div>
 
                 <div class="invoice-title">
-                INVOICE
+                    INVOICE
                 </div>
 
-                <div>
-                Business Management System
+
+                <div class="business-name">
+                    ${businessName}
+                </div>
+
+
+                <div class="business-details">
+
+                    ${
+                        businessPhone
+                        ? "📞 " + businessPhone + "<br>"
+                        : ""
+                    }
+
+
+                    ${
+                        businessEmail
+                        ? "📧 " + businessEmail + "<br>"
+                        : ""
+                    }
+
+
+                    ${
+                        businessWebsite
+                        ? "🌐 " + businessWebsite + "<br>"
+                        : ""
+                    }
+
+
+                    ${
+                        businessAddress
+                        ? "📍 " + businessAddress
+                        : ""
+                    }
+
                 </div>
 
             </div>
@@ -357,6 +460,8 @@ function createInvoice(id) {
         </div>
 
 
+        <!-- Customer -->
+
         <div class="invoice-info">
 
             <strong>
@@ -367,6 +472,8 @@ function createInvoice(id) {
 
         </div>
 
+
+        <!-- Product Table -->
 
         <table>
 
@@ -414,6 +521,8 @@ function createInvoice(id) {
         </table>
 
 
+        <!-- Total -->
+
         <div class="total-section">
 
             <strong>
@@ -424,6 +533,7 @@ function createInvoice(id) {
 
             <br>
 
+
             <strong>
             Paid:
             </strong>
@@ -431,6 +541,7 @@ function createInvoice(id) {
             ৳ ${sale.paid}
 
             <br>
+
 
             <strong>
             Due:
@@ -443,6 +554,8 @@ function createInvoice(id) {
 
         <br>
 
+
+        <!-- Print -->
 
         <button
         class="print-btn no-print"
@@ -468,6 +581,10 @@ function createInvoice(id) {
 
 }
 
+
+// ========================================
+// LOAD SALES
+// ========================================
 
 showSales();
 
