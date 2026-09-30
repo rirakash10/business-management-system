@@ -1,1 +1,511 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employees - Business Management System</title>
 
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f7fa;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: auto;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .top-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    button {
+        border: none;
+        padding: 10px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+        background: #2563eb;
+        color: white;
+    }
+
+    button:hover {
+        opacity: 0.9;
+    }
+
+    .back-btn {
+        background: #374151;
+    }
+
+    .delete-btn {
+        background: #dc2626;
+    }
+
+    .edit-btn {
+        background: #f59e0b;
+    }
+
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        text-align: center;
+    }
+
+    .card h2 {
+        margin: 5px 0;
+        color: #2563eb;
+    }
+
+    .form-box {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        margin-top: 5px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .save-area {
+        margin-top: 15px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    th, td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+
+    th {
+        background: #f3f4f6;
+    }
+
+    .active {
+        color: green;
+        font-weight: bold;
+    }
+
+    .inactive {
+        color: red;
+        font-weight: bold;
+    }
+
+    .actions {
+        display: flex;
+        gap: 5px;
+    }
+
+    @media (max-width: 700px) {
+        .cards,
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        table {
+            font-size: 13px;
+        }
+
+        .container {
+            overflow-x: auto;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>👨‍💼 Employee Management</h1>
+
+    <div class="top-buttons">
+        <button class="back-btn" onclick="window.location.href='index.html'">
+            🏠 Dashboard
+        </button>
+    </div>
+
+    <!-- Summary -->
+    <div class="cards">
+
+        <div class="card">
+            <div>মোট কর্মী</div>
+            <h2 id="totalEmployees">0</h2>
+        </div>
+
+        <div class="card">
+            <div>Active কর্মী</div>
+            <h2 id="activeEmployees">0</h2>
+        </div>
+
+        <div class="card">
+            <div>মাসিক মোট Salary</div>
+            <h2>৳<span id="totalSalary">0</span></h2>
+        </div>
+
+    </div>
+
+    <!-- Employee Form -->
+    <div class="form-box">
+
+        <h2 id="formTitle">➕ নতুন কর্মী যোগ করুন</h2>
+
+        <div class="form-grid">
+
+            <div>
+                <label>কর্মীর নাম</label>
+                <input type="text" id="name" placeholder="যেমন: Rahim">
+            </div>
+
+            <div>
+                <label>মোবাইল নম্বর</label>
+                <input type="text" id="phone" placeholder="01XXXXXXXXX">
+            </div>
+
+            <div>
+                <label>পদবি</label>
+                <input type="text" id="position" placeholder="যেমন: Sales Executive">
+            </div>
+
+            <div>
+                <label>মাসিক Salary</label>
+                <input type="number" id="salary" placeholder="যেমন: 15000">
+            </div>
+
+            <div>
+                <label>Joining Date</label>
+                <input type="date" id="joiningDate">
+            </div>
+
+            <div>
+                <label>Status</label>
+                <select id="status">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="save-area">
+
+            <button onclick="saveEmployee()" id="saveButton">
+                💾 Employee Save করুন
+            </button>
+
+            <button onclick="cancelEdit()" id="cancelButton"
+                    style="display:none;background:#6b7280;">
+                Cancel
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Employee List -->
+    <h2>📋 Employee List</h2>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>নাম</th>
+                <th>Phone</th>
+                <th>পদবি</th>
+                <th>Salary</th>
+                <th>Joining Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody id="employeeList"></tbody>
+
+    </table>
+
+</div>
+
+<script>
+
+let employees = JSON.parse(localStorage.getItem("employees") || "[]");
+
+let editingId = null;
+
+
+// Save Employee
+function saveEmployee() {
+
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const position = document.getElementById("position").value.trim();
+    const salary = Number(document.getElementById("salary").value);
+    const joiningDate = document.getElementById("joiningDate").value;
+    const status = document.getElementById("status").value;
+
+    if (!name) {
+        alert("কর্মীর নাম দিন");
+        return;
+    }
+
+    if (!position) {
+        alert("পদবি দিন");
+        return;
+    }
+
+    if (!salary || salary < 0) {
+        alert("সঠিক Salary দিন");
+        return;
+    }
+
+    if (editingId) {
+
+        const employee = employees.find(e => e.id === editingId);
+
+        if (employee) {
+            employee.name = name;
+            employee.phone = phone;
+            employee.position = position;
+            employee.salary = salary;
+            employee.joiningDate = joiningDate;
+            employee.status = status;
+        }
+
+        editingId = null;
+
+        document.getElementById("formTitle").innerText =
+            "➕ নতুন কর্মী যোগ করুন";
+
+        document.getElementById("saveButton").innerText =
+            "💾 Employee Save করুন";
+
+        document.getElementById("cancelButton").style.display = "none";
+
+    } else {
+
+        const employee = {
+            id: Date.now(),
+            name: name,
+            phone: phone,
+            position: position,
+            salary: salary,
+            joiningDate: joiningDate,
+            status: status
+        };
+
+        employees.push(employee);
+    }
+
+    localStorage.setItem("employees", JSON.stringify(employees));
+
+    clearForm();
+    renderEmployees();
+
+    alert("Employee সফলভাবে Save হয়েছে ✅");
+}
+
+
+// Display Employees
+function renderEmployees() {
+
+    const list = document.getElementById("employeeList");
+
+    list.innerHTML = "";
+
+    let activeCount = 0;
+    let totalSalary = 0;
+
+    employees.forEach(employee => {
+
+        if (employee.status === "Active") {
+            activeCount++;
+            totalSalary += Number(employee.salary) || 0;
+        }
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${employee.name}</td>
+
+            <td>${employee.phone || "-"}</td>
+
+            <td>${employee.position}</td>
+
+            <td>৳${Number(employee.salary).toLocaleString("en-BD")}</td>
+
+            <td>${employee.joiningDate || "-"}</td>
+
+            <td class="${employee.status === "Active" ? "active" : "inactive"}">
+                ${employee.status}
+            </td>
+
+            <td>
+                <div class="actions">
+
+                    <button class="edit-btn"
+                        onclick="editEmployee(${employee.id})">
+                        Edit
+                    </button>
+
+                    <button class="delete-btn"
+                        onclick="deleteEmployee(${employee.id})">
+                        Delete
+                    </button>
+
+                </div>
+            </td>
+        `;
+
+        list.appendChild(row);
+    });
+
+    document.getElementById("totalEmployees").innerText =
+        employees.length;
+
+    document.getElementById("activeEmployees").innerText =
+        activeCount;
+
+    document.getElementById("totalSalary").innerText =
+        totalSalary.toLocaleString("en-BD");
+}
+
+
+// Edit Employee
+function editEmployee(id) {
+
+    const employee = employees.find(e => e.id === id);
+
+    if (!employee) return;
+
+    document.getElementById("name").value = employee.name;
+    document.getElementById("phone").value = employee.phone;
+    document.getElementById("position").value = employee.position;
+    document.getElementById("salary").value = employee.salary;
+    document.getElementById("joiningDate").value = employee.joiningDate;
+    document.getElementById("status").value = employee.status;
+
+    editingId = id;
+
+    document.getElementById("formTitle").innerText =
+        "✏️ Employee Edit করুন";
+
+    document.getElementById("saveButton").innerText =
+        "🔄 Update Employee";
+
+    document.getElementById("cancelButton").style.display =
+        "inline-block";
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+// Delete Employee
+function deleteEmployee(id) {
+
+    const employee = employees.find(e => e.id === id);
+
+    if (!employee) return;
+
+    const confirmDelete = confirm(
+        employee.name + " কে Delete করতে চান?"
+    );
+
+    if (!confirmDelete) return;
+
+    employees = employees.filter(e => e.id !== id);
+
+    localStorage.setItem(
+        "employees",
+        JSON.stringify(employees)
+    );
+
+    renderEmployees();
+}
+
+
+// Cancel Edit
+function cancelEdit() {
+
+    editingId = null;
+
+    clearForm();
+
+    document.getElementById("formTitle").innerText =
+        "➕ নতুন কর্মী যোগ করুন";
+
+    document.getElementById("saveButton").innerText =
+        "💾 Employee Save করুন";
+
+    document.getElementById("cancelButton").style.display =
+        "none";
+}
+
+
+// Clear Form
+function clearForm() {
+
+    document.getElementById("name").value = "";
+    document.getElementById("phone").value = "";
+    document.getElementById("position").value = "";
+    document.getElementById("salary").value = "";
+    document.getElementById("joiningDate").value = "";
+
+    document.getElementById("status").value = "Active";
+}
+
+
+// Set today's date
+document.getElementById("joiningDate").value =
+    new Date().toISOString().split("T")[0];
+
+
+// Load Employees
+renderEmployees();
+
+</script>
+
+</body>
+</html>
