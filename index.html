@@ -791,7 +791,18 @@ function updateDashboard() {
         }
 
     });
+/* =====================
+   PAYMENTS
+===================== */
 
+const payments = JSON.parse(localStorage.getItem("payments")) || [];
+
+const totalPayments = payments.reduce(
+    (sum, payment) => sum + (Number(payment.amount) || 0),
+    0
+);
+
+totalDue = Math.max(totalDue - totalPayments, 0);
 
     /* =====================
        EXPENSES
