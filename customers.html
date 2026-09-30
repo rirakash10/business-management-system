@@ -1,20 +1,311 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customers</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Customer Management</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f5f7fb;
+    color: #1f2937;
+}
+
+.header {
+    background: #111827;
+    color: white;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 25px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 7px 0;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+button {
+    border: none;
+    padding: 11px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #111827;
+    color: white;
+    font-size: 15px;
+}
+
+.delete {
+    background: #dc2626;
+}
+
+.customer {
+    border: 1px solid #e5e7eb;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+</style>
 </head>
 
 <body>
 
+<header class="header">
+
 <h1>👥 Customer Management</h1>
 
-<p>এটি Customer Management Page.</p>
+<p>Business Management System</p>
+
+</header>
+
+
+<main class="container">
+
+
+<div class="card">
 
 <button onclick="window.location.href='index.html'">
-    ← Dashboard
+← Dashboard
 </button>
+
+</div>
+
+
+<div class="card">
+
+<h2>➕ নতুন Customer যোগ করুন</h2>
+
+<input
+id="name"
+type="text"
+placeholder="Customer Name"
+>
+
+<input
+id="phone"
+type="text"
+placeholder="Mobile Number"
+>
+
+<input
+id="address"
+type="text"
+placeholder="Address"
+>
+
+<button onclick="addCustomer()">
+Add Customer
+</button>
+
+</div>
+
+
+<div class="card">
+
+<h2>🔎 Customer Search</h2>
+
+<input
+id="search"
+type="text"
+placeholder="নাম অথবা মোবাইল দিয়ে Search করুন"
+onkeyup="showCustomers()"
+>
+
+</div>
+
+
+<div class="card">
+
+<h2>👥 Customer List</h2>
+
+<div id="customerList"></div>
+
+</div>
+
+
+</main>
+
+
+<script>
+
+function getCustomers() {
+
+    return JSON.parse(
+        localStorage.getItem("customers") || "[]"
+    );
+
+}
+
+
+function saveCustomers(customers) {
+
+    localStorage.setItem(
+        "customers",
+        JSON.stringify(customers)
+    );
+
+}
+
+
+function addCustomer() {
+
+    const name =
+        document.getElementById("name").value.trim();
+
+    const phone =
+        document.getElementById("phone").value.trim();
+
+    const address =
+        document.getElementById("address").value.trim();
+
+
+    if (name === "") {
+
+        alert("Customer Name দিন");
+
+        return;
+
+    }
+
+
+    const customers = getCustomers();
+
+
+    customers.push({
+
+        id: Date.now(),
+
+        name: name,
+
+        phone: phone,
+
+        address: address
+
+    });
+
+
+    saveCustomers(customers);
+
+
+    document.getElementById("name").value = "";
+
+    document.getElementById("phone").value = "";
+
+    document.getElementById("address").value = "";
+
+
+    showCustomers();
+
+}
+
+
+function deleteCustomer(id) {
+
+    if (!confirm("এই Customer delete করবেন?")) {
+
+        return;
+
+    }
+
+
+    let customers = getCustomers();
+
+
+    customers = customers.filter(
+        customer => customer.id !== id
+    );
+
+
+    saveCustomers(customers);
+
+
+    showCustomers();
+
+}
+
+
+function showCustomers() {
+
+    const customers = getCustomers();
+
+    const search =
+        document.getElementById("search").value.toLowerCase();
+
+
+    const list =
+        document.getElementById("customerList");
+
+
+    const filtered = customers.filter(customer =>
+
+        customer.name.toLowerCase().includes(search) ||
+
+        customer.phone.toLowerCase().includes(search)
+
+    );
+
+
+    if (filtered.length === 0) {
+
+        list.innerHTML =
+            "<p>এখনো কোনো Customer যোগ করা হয়নি।</p>";
+
+        return;
+
+    }
+
+
+    list.innerHTML = filtered.map(customer => `
+
+        <div class="customer">
+
+            <h3>👤 ${customer.name}</h3>
+
+            <p>📞 ${customer.phone || "নম্বর নেই"}</p>
+
+            <p>📍 ${customer.address || "ঠিকানা নেই"}</p>
+
+            <button
+                class="delete"
+                onclick="deleteCustomer(${customer.id})"
+            >
+                🗑️ Delete
+            </button>
+
+        </div>
+
+    `).join("");
+
+}
+
+
+showCustomers();
+
+</script>
 
 </body>
 </html>
