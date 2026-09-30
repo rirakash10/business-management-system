@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Products & Stock</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f5f7fb;
+    color: #1f2937;
+}
+
+.header {
+    background: #111827;
+    color: white;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 25px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 7px 0;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+button {
+    border: none;
+    padding: 11px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #111827;
+    color: white;
+    font-size: 15px;
+}
+
+.delete {
+    background: #dc2626;
+}
+
+.product {
+    border: 1px solid #e5e7eb;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.low-stock {
+    background: #fff1f2;
+    border-color: #ef4444;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header class="header">
+
+<h1>📦 Products & Stock</h1>
+
+<p>Inventory Management</p>
+
+</header>
+
+
+<main class="container">
+
+
+<div class="card">
+
+<button
+onclick="window.location.href='index.html'">
+
+← Dashboard
+
+</button>
+
+</div>
+
+
+<div class="card">
+
+<h2>➕ নতুন Product যোগ করুন</h2>
+
+<input
+id="productName"
+type="text"
+placeholder="Product Name">
+
+
+<input
+id="quantity"
+type="number"
+placeholder="Stock Quantity">
+
+
+<input
+id="buyPrice"
+type="number"
+placeholder="Buying Price">
+
+
+<input
+id="sellPrice"
+type="number"
+placeholder="Selling Price">
+
+
+<button onclick="addProduct()">
+
+Add Product
+
+</button>
+
+</div>
+
+
+<div class="card">
+
+<h2>🔎 Product Search</h2>
+
+<input
+id="search"
+type="text"
+placeholder="Product search করুন"
+onkeyup="showProducts()">
+
+</div>
+
+
+<div class="card">
+
+<h2>📦 Product List</h2>
+
+<div id="productList"></div>
+
+</div>
+
+
+</main>
+
+
+<script>
+
+
+function getProducts() {
+
+return JSON.parse(
+
+localStorage.getItem("products") || "[]"
+
+);
+
+}
+
+
+function saveProducts(products) {
+
+localStorage.setItem(
+
+"products",
+
+JSON.stringify(products)
+
+);
+
+}
+
+
+function addProduct() {
+
+
+const name =
+
+document
+.getElementById("productName")
+.value
+.trim();
+
+
+const quantity =
+
+Number(
+document
+.getElementById("quantity")
+.value
+);
+
+
+const buyPrice =
+
+Number(
+document
+.getElementById("buyPrice")
+.value
+);
+
+
+const sellPrice =
+
+Number(
+document
+.getElementById("sellPrice")
+.value
+);
+
+
+if (name === "") {
+
+alert("Product Name দিন");
+
+return;
+
+}
+
+
+const products = getProducts();
+
+
+products.push({
+
+id: Date.now(),
+
+name: name,
+
+quantity: quantity,
+
+buyPrice: buyPrice,
+
+sellPrice: sellPrice
+
+});
+
+
+saveProducts(products);
+
+
+document
+.getElementById("productName")
+.value = "";
+
+
+document
+.getElementById("quantity")
+.value = "";
+
+
+document
+.getElementById("buyPrice")
+.value = "";
+
+
+document
+.getElementById("sellPrice")
+.value = "";
+
+
+showProducts();
+
+}
+
+
+function deleteProduct(id) {
+
+
+if (!confirm(
+
+"এই Product delete করবেন?"
+
+)) {
+
+return;
+
+}
+
+
+let products = getProducts();
+
+
+products = products.filter(
+
+product => product.id !== id
+
+);
+
+
+saveProducts(products);
+
+
+showProducts();
+
+}
+
+
+function showProducts() {
+
+
+const products = getProducts();
+
+
+const search =
+
+document
+.getElementById("search")
+.value
+.toLowerCase();
+
+
+const list =
+
+document
+.getElementById("productList");
+
+
+const filtered = products.filter(
+
+product =>
+
+product.name
+.toLowerCase()
+.includes(search)
+
+);
+
+
+if (filtered.length === 0) {
+
+list.innerHTML =
+
+"<p>কোনো Product পাওয়া যায়নি।</p>";
+
+return;
+
+}
+
+
+list.innerHTML =
+
+filtered.map(product => {
+
+
+const lowStock =
+
+product.quantity <= 5;
+
+
+return `
+
+<div class="product ${
+
+lowStock ? "low-stock" : ""
+
+}">
+
+<h3>
+📦 ${product.name}
+</h3>
+
+<p>
+🔢 Stock:
+<strong>
+${product.quantity}
+</strong>
+</p>
+
+<p>
+💰 Buying Price:
+৳${product.buyPrice}
+</p>
+
+<p>
+💵 Selling Price:
+৳${product.sellPrice}
+</p>
+
+${
+lowStock
+
+?
+
+"<p>⚠️ Low Stock!</p>"
+
+:
+
+""
+
+}
+
+
+<button
+
+class="delete"
+
+onclick="deleteProduct(${product.id})">
+
+🗑️ Delete
+
+</button>
+
+
+</div>
+
+`;
+
+}).join("");
+
+}
+
+
+showProducts();
+
+
+</script>
+
+
+</body>
+
+</html>
