@@ -10,7 +10,6 @@ content="width=device-width, initial-scale=1.0">
 
 <title>Business Management System</title>
 
-
 <style>
 
 * {
@@ -125,9 +124,7 @@ body {
 
 </head>
 
-
 <body>
-
 
 <header class="header">
 
@@ -141,12 +138,9 @@ Business Management System
 
 </header>
 
-
 <main class="container">
 
-
 <section class="cards">
-
 
 <div class="card">
 
@@ -215,7 +209,6 @@ Business Management System
 
 </div>
 
-
 </section>
 
 
@@ -226,6 +219,8 @@ Business Modules
 
 <section class="menu">
 
+
+<!-- Customers -->
 
 <button
 onclick="window.location.href='customers.html'">
@@ -238,6 +233,8 @@ Customers
 </button>
 
 
+<!-- Products -->
+
 <button
 onclick="window.location.href='products.html'">
 
@@ -248,6 +245,8 @@ Products & Stock
 
 </button>
 
+
+<!-- Sales -->
 
 <button
 onclick="window.location.href='sales.html'">
@@ -260,6 +259,8 @@ Sales
 </button>
 
 
+<!-- Invoices -->
+
 <button
 onclick="window.location.href='invoices.html'">
 
@@ -270,6 +271,8 @@ Invoices
 
 </button>
 
+
+<!-- Expenses -->
 
 <button
 onclick="window.location.href='expenses.html'">
@@ -282,14 +285,36 @@ Expenses
 </button>
 
 
-<button onclick="window.location.href='employees.html'">
-    👨‍💼<br><br>Employees
+<!-- Employees -->
+
+<button
+onclick="window.location.href='employees.html'">
+
+👨‍💼
+<br><br>
+
+Employees
+
 </button>
 
 
-<button onclick="window.location.href='reports.html'">
-    📊<br><br>Reports
+<!-- Reports -->
+
+<button
+onclick="window.location.href='reports.html'">
+
+📊
+<br><br>
+
+Reports
+
 </button>
+
+
+<!-- Settings -->
+
+<button
+onclick="window.location.href='settings.html'">
 
 ⚙️
 <br><br>
@@ -306,7 +331,6 @@ Settings
 
 
 <script>
-
 
 /* =========================
    SALES DATA
@@ -340,11 +364,9 @@ function getExpenses() {
 
 function updateDashboard() {
 
-
     const sales = getSales();
 
     const expenses = getExpenses();
-
 
     let totalSales = 0;
 
@@ -401,13 +423,11 @@ function updateDashboard() {
 }
 
 
-/* Run */
+/* Run Dashboard */
 
 updateDashboard();
 
-
 </script>
-
 
 </body>
 
