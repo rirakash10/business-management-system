@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html lang="bn">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <title>Customer Management</title>
 
@@ -26,7 +30,7 @@ body {
 }
 
 .container {
-    max-width: 1000px;
+    max-width: 1100px;
     margin: auto;
     padding: 25px;
 }
@@ -62,17 +66,112 @@ button {
     background: #dc2626;
 }
 
+.history-btn {
+    background: #2563eb;
+    margin-left: 5px;
+}
+
 .customer {
     border: 1px solid #e5e7eb;
-    padding: 15px;
+    padding: 18px;
     border-radius: 10px;
-    margin-top: 10px;
+    margin-top: 12px;
+}
+
+.customer h3 {
+    margin-top: 0;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.stat {
+    background: #f3f4f6;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.stat strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.due {
+    color: #dc2626;
+    font-weight: bold;
+}
+
+.paid {
+    color: #16a34a;
+    font-weight: bold;
+}
+
+.sales-history {
+    display: none;
+    margin-top: 15px;
+    overflow-x: auto;
+}
+
+.sales-history table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+.sales-history th,
+.sales-history td {
+    padding: 10px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+.sales-history th {
+    background: #f3f4f6;
+}
+
+.empty {
+    color: #6b7280;
+}
+
+.summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.summary-box {
+    padding: 20px;
+    border-radius: 10px;
+    background: #f3f4f6;
+}
+
+.summary-box h3 {
+    margin-top: 0;
+}
+
+@media(max-width: 700px) {
+
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .summary {
+        grid-template-columns: 1fr;
+    }
+
 }
 
 </style>
+
 </head>
 
+
 <body>
+
 
 <header class="header">
 
@@ -86,6 +185,8 @@ button {
 <main class="container">
 
 
+<!-- DASHBOARD BUTTON -->
+
 <div class="card">
 
 <button onclick="window.location.href='index.html'">
@@ -94,6 +195,8 @@ button {
 
 </div>
 
+
+<!-- ADD CUSTOMER -->
 
 <div class="card">
 
@@ -124,6 +227,8 @@ Add Customer
 </div>
 
 
+<!-- SEARCH -->
+
 <div class="card">
 
 <h2>🔎 Customer Search</h2>
@@ -138,6 +243,57 @@ onkeyup="showCustomers()"
 </div>
 
 
+<!-- CUSTOMER SUMMARY -->
+
+<div class="card">
+
+<h2>📊 Customer Summary</h2>
+
+<div class="summary">
+
+<div class="summary-box">
+
+<h3>👥 Total Customers</h3>
+
+<strong id="totalCustomers">
+0
+</strong>
+
+</div>
+
+
+<div class="summary-box">
+
+<h3>💰 Total Sales</h3>
+
+<strong id="customerTotalSales">
+৳ 0
+</strong>
+
+</div>
+
+
+<div class="summary-box">
+
+<h3>🔴 Total Due</h3>
+
+<strong
+id="customerTotalDue"
+class="due">
+
+৳ 0
+
+</strong>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- CUSTOMER LIST -->
+
 <div class="card">
 
 <h2>👥 Customer List</h2>
@@ -151,6 +307,11 @@ onkeyup="showCustomers()"
 
 
 <script>
+
+
+/* =========================
+   CUSTOMERS
+========================= */
 
 function getCustomers() {
 
@@ -171,16 +332,41 @@ function saveCustomers(customers) {
 }
 
 
+/* =========================
+   SALES
+========================= */
+
+function getSales() {
+
+    return JSON.parse(
+        localStorage.getItem("sales") || "[]"
+    );
+
+}
+
+
+/* =========================
+   ADD CUSTOMER
+========================= */
+
 function addCustomer() {
 
     const name =
-        document.getElementById("name").value.trim();
+        document.getElementById("name")
+        .value
+        .trim();
+
 
     const phone =
-        document.getElementById("phone").value.trim();
+        document.getElementById("phone")
+        .value
+        .trim();
+
 
     const address =
-        document.getElementById("address").value.trim();
+        document.getElementById("address")
+        .value
+        .trim();
 
 
     if (name === "") {
@@ -193,6 +379,30 @@ function addCustomer() {
 
 
     const customers = getCustomers();
+
+
+    /* একই নাম + ফোন থাকলে */
+
+    const alreadyExists =
+        customers.some(customer =>
+
+            customer.name.toLowerCase() ===
+            name.toLowerCase() &&
+
+            customer.phone === phone
+
+        );
+
+
+    if (alreadyExists) {
+
+        alert(
+            "⚠️ এই Customer আগে থেকেই আছে।"
+        );
+
+        return;
+
+    }
 
 
     customers.push({
@@ -220,12 +430,22 @@ function addCustomer() {
 
     showCustomers();
 
+    alert(
+        "✅ Customer সফলভাবে যোগ হয়েছে।"
+    );
+
 }
 
 
+/* =========================
+   DELETE CUSTOMER
+========================= */
+
 function deleteCustomer(id) {
 
-    if (!confirm("এই Customer delete করবেন?")) {
+    if (!confirm(
+        "এই Customer delete করবেন?"
+    )) {
 
         return;
 
@@ -235,9 +455,10 @@ function deleteCustomer(id) {
     let customers = getCustomers();
 
 
-    customers = customers.filter(
-        customer => customer.id !== id
-    );
+    customers =
+        customers.filter(
+            customer => customer.id !== id
+        );
 
 
     saveCustomers(customers);
@@ -248,65 +469,426 @@ function deleteCustomer(id) {
 }
 
 
+/* =========================
+   CUSTOMER SALES
+========================= */
+
+function getCustomerSales(customer) {
+
+    const sales = getSales();
+
+
+    return sales.filter(sale => {
+
+        /* নতুন Sales */
+
+        if (
+            sale.customerId &&
+            Number(sale.customerId) ===
+            Number(customer.id)
+        ) {
+
+            return true;
+
+        }
+
+
+        /* পুরোনো Sales-এর জন্য */
+
+        return (
+            String(sale.customer || "")
+            .toLowerCase() ===
+            String(customer.name || "")
+            .toLowerCase()
+        );
+
+    });
+
+}
+
+
+/* =========================
+   CUSTOMER STATS
+========================= */
+
+function getCustomerStats(customer) {
+
+    const sales =
+        getCustomerSales(customer);
+
+
+    let total = 0;
+
+    let paid = 0;
+
+    let due = 0;
+
+
+    sales.forEach(sale => {
+
+        total +=
+            Number(sale.total) || 0;
+
+        paid +=
+            Number(sale.paid) || 0;
+
+        due +=
+            Number(sale.due) || 0;
+
+    });
+
+
+    return {
+
+        salesCount: sales.length,
+
+        total: total,
+
+        paid: paid,
+
+        due: due
+
+    };
+
+}
+
+
+/* =========================
+   HISTORY TOGGLE
+========================= */
+
+function toggleHistory(id) {
+
+    const element =
+        document.getElementById(
+            "history-" + id
+        );
+
+
+    if (!element) return;
+
+
+    if (
+        element.style.display === "none" ||
+        element.style.display === ""
+    ) {
+
+        element.style.display = "block";
+
+    } else {
+
+        element.style.display = "none";
+
+    }
+
+}
+
+
+/* =========================
+   SHOW CUSTOMER
+========================= */
+
 function showCustomers() {
 
-    const customers = getCustomers();
+    const customers =
+        getCustomers();
+
 
     const search =
-        document.getElementById("search").value.toLowerCase();
+        document.getElementById("search")
+        .value
+        .toLowerCase()
+        .trim();
 
 
     const list =
-        document.getElementById("customerList");
+        document.getElementById(
+            "customerList"
+        );
 
 
-    const filtered = customers.filter(customer =>
+    const filtered =
+        customers.filter(customer =>
 
-        customer.name.toLowerCase().includes(search) ||
+            String(customer.name || "")
+            .toLowerCase()
+            .includes(search)
 
-        customer.phone.toLowerCase().includes(search)
+            ||
 
-    );
+            String(customer.phone || "")
+            .toLowerCase()
+            .includes(search)
 
+        );
+
+
+    /* SUMMARY */
+
+    document.getElementById(
+        "totalCustomers"
+    ).innerText =
+        customers.length;
+
+
+    let allSales = 0;
+
+    let allDue = 0;
+
+
+    customers.forEach(customer => {
+
+        const stats =
+            getCustomerStats(customer);
+
+
+        allSales += stats.total;
+
+        allDue += stats.due;
+
+    });
+
+
+    document.getElementById(
+        "customerTotalSales"
+    ).innerText =
+        "৳ " + allSales;
+
+
+    document.getElementById(
+        "customerTotalDue"
+    ).innerText =
+        "৳ " + allDue;
+
+
+    /* NO CUSTOMER */
 
     if (filtered.length === 0) {
 
         list.innerHTML =
-            "<p>এখনো কোনো Customer যোগ করা হয়নি।</p>";
+            "<p class='empty'>এখনো কোনো Customer যোগ করা হয়নি।</p>";
 
         return;
 
     }
 
 
-    list.innerHTML = filtered.map(customer => `
+    /* CUSTOMER CARDS */
 
-        <div class="customer">
+    list.innerHTML =
+        filtered.map(customer => {
 
-            <h3>👤 ${customer.name}</h3>
+            const stats =
+                getCustomerStats(customer);
 
-            <p>📞 ${customer.phone || "নম্বর নেই"}</p>
 
-            <p>📍 ${customer.address || "ঠিকানা নেই"}</p>
+            const sales =
+                getCustomerSales(customer);
 
-            <button
-                class="delete"
-                onclick="deleteCustomer(${customer.id})"
-            >
-                🗑️ Delete
-            </button>
 
-        </div>
+            let historyHTML = "";
 
-    `).join("");
+
+            if (sales.length === 0) {
+
+                historyHTML = `
+                    <p class="empty">
+                    এই Customer-এর কোনো Sale History নেই।
+                    </p>
+                `;
+
+            } else {
+
+                historyHTML = `
+
+                <table>
+
+                <tr>
+
+                <th>Date</th>
+
+                <th>Product</th>
+
+                <th>Qty</th>
+
+                <th>Total</th>
+
+                <th>Paid</th>
+
+                <th>Due</th>
+
+                <th>Payment</th>
+
+                </tr>
+
+                `;
+
+
+                sales
+                .slice()
+                .reverse()
+                .forEach(sale => {
+
+                    historyHTML += `
+
+                    <tr>
+
+                    <td>
+                    ${sale.date || "-"}
+                    </td>
+
+                    <td>
+                    ${sale.product || "-"}
+                    </td>
+
+                    <td>
+                    ${sale.quantity || 0}
+                    </td>
+
+                    <td>
+                    ৳ ${Number(sale.total) || 0}
+                    </td>
+
+                    <td class="paid">
+                    ৳ ${Number(sale.paid) || 0}
+                    </td>
+
+                    <td class="due">
+                    ৳ ${Number(sale.due) || 0}
+                    </td>
+
+                    <td>
+                    ${sale.paymentMethod || "-"}
+                    </td>
+
+                    </tr>
+
+                    `;
+
+                });
+
+
+                historyHTML += "</table>";
+
+            }
+
+
+            return `
+
+            <div class="customer">
+
+                <h3>
+                👤 ${customer.name}
+                </h3>
+
+
+                <p>
+                📞 ${customer.phone || "নম্বর নেই"}
+                </p>
+
+
+                <p>
+                📍 ${customer.address || "ঠিকানা নেই"}
+                </p>
+
+
+                <div class="stats">
+
+                    <div class="stat">
+
+                        <strong>
+                        🧾 Total Sale
+                        </strong>
+
+                        ${stats.salesCount}
+
+                    </div>
+
+
+                    <div class="stat">
+
+                        <strong>
+                        💰 Total
+                        </strong>
+
+                        ৳ ${stats.total}
+
+                    </div>
+
+
+                    <div class="stat">
+
+                        <strong>
+                        ✅ Paid
+                        </strong>
+
+                        <span class="paid">
+                        ৳ ${stats.paid}
+                        </span>
+
+                    </div>
+
+
+                    <div class="stat">
+
+                        <strong>
+                        🔴 Due
+                        </strong>
+
+                        <span class="due">
+                        ৳ ${stats.due}
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    class="history-btn"
+                    onclick="toggleHistory(${customer.id})">
+
+                    📋 Sales History
+
+                </button>
+
+
+                <button
+                    class="delete"
+                    onclick="deleteCustomer(${customer.id})">
+
+                    🗑️ Delete
+
+                </button>
+
+
+                <div
+                    id="history-${customer.id}"
+                    class="sales-history">
+
+                    ${historyHTML}
+
+                </div>
+
+            </div>
+
+            `;
+
+        })
+        .join("");
 
 }
 
+
+/* =========================
+   START
+========================= */
 
 showCustomers();
 
 </script>
 
+
 </body>
+
 </html>
-<!-- Customer Management v2 -->
